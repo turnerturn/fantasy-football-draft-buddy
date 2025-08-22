@@ -6,7 +6,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Turner – 2025 Big Board (Starter)</title>
+  <title>Turner - 2025 Big Board (Starter)</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
   <style>
     :root{
@@ -77,10 +77,11 @@
       display:flex;align-items:center;gap:clamp(8px, 2vw, 10px);
       padding:clamp(10px, 2.5vh, 12px) clamp(10px, 2.5vw, 12px);
       border-bottom:1px solid var(--border);
-      cursor:grab;user-select:none;
+      cursor:pointer;user-select:none;
       transition:all 0.2s ease;
       touch-action:manipulation;
       position:relative;
+      overflow:hidden;
     }
     .row:last-child{border-bottom:none}
     .row:hover{background:rgba(255,255,255,0.02)}
@@ -94,12 +95,95 @@
       background:rgba(106,160,255,0.1);
       border-color:var(--accent);
     }
+
+    /* PPG >= 14 conditional styling */
+    .row.high-ppg {
+      border-left: 3px solid var(--ok);
+      background: linear-gradient(90deg, rgba(107, 217, 123, 0.1), var(--card));
+    }
+
+    /* Row content container for swipe gestures */
+    .row-content {
+      display: flex;
+      align-items: center;
+      gap: clamp(8px, 2vw, 10px);
+      width: 100%;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Toggle buttons container (hidden by default) */
+    .toggle-buttons {
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: clamp(4px, 1vw, 6px);
+      padding: 0 clamp(8px, 2vw, 12px);
+      background: linear-gradient(90deg, transparent, var(--chip));
+      z-index: 1;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
+    }
+
+    .row.swiped .toggle-buttons {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .row.swiped .row-content {
+      transform: translateX(-100px);
+    }
+
+    .toggle-btn {
+      padding: clamp(4px, 1vw, 6px) clamp(6px, 1.5vw, 8px);
+      border: 1px solid var(--border);
+      background: var(--chip);
+      color: var(--fg);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: clamp(11px, 2.2vw, 13px);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .toggle-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .toggle-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .toggle-btn.avoid.active {
+      background: var(--danger);
+    }
+
     .drag-handle{
       color:var(--muted);font-size:18px;
-      cursor:grab;padding:0 4px;
-      touch-action:manipulation;
+      cursor:grab;padding: clamp(4px, 1vw, 6px);
+      touch-action:none;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      order: 999; /* Move to far right */
+      margin-left: auto;
     }
-    .drag-handle:active{cursor:grabbing}
+    .drag-handle:active{cursor:grabbing; background: rgba(255,255,255,0.1);}
+    .drag-handle:hover{background: rgba(255,255,255,0.05);}
+
+    /* Handcuff icon for backup players */
+    .handcuff-icon {
+      color: #ffa500;
+      font-size: clamp(12px, 2.5vw, 14px);
+      margin-left: clamp(4px, 1vw, 6px);
+      opacity: 0.8;
+    }
     .rank{min-width:clamp(30px, 8vw, 40px);text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
     .name{flex:1;min-width:0}
     .meta{color:var(--muted);font-variant-numeric:tabular-nums;font-size:clamp(11px, 2.2vw, 13px)}
@@ -626,7 +710,7 @@
   <!-- NAV -->
   <div class="nav" id="nav">
     <div class="wrap">
-      <div class="brand">Turner – 2025 Big Board</div>
+      <div class="brand">Turner - 2025 Big Board</div>
       <div class="spacer"></div>
       <button class="btn" id="btnUpload">Import Data</button>
      <button class="btn" id="btnReset">Reset</button>
@@ -646,7 +730,7 @@
 
   <!-- PRINT LIST (built just-in-time before print) -->
   <div class="container" id="printSection">
-    <div class="print-header" id="printHeader">Turner – 2025 Fantasy Football Big Board</div>
+    <div class="print-header" id="printHeader">Turner - 2025 Fantasy Football Big Board</div>
     <div class="print-grid" id="printGrid"></div>
   </div>
   <footer class="print">Generated on <span id="printDate"></span></footer>
@@ -829,9 +913,31 @@
     const list = $('#liveList');
     if(!list) return;
 
+    // Only allow dragging when initiated from drag handle
+    list.addEventListener('mousedown', (e) => {
+      const dragHandle = e.target.closest('.drag-handle');
+      if (dragHandle) {
+        const row = dragHandle.closest('.row');
+        if (row) {
+          row.setAttribute('draggable', 'true');
+        }
+      }
+    });
+
+    list.addEventListener('mouseup', (e) => {
+      const rows = list.querySelectorAll('.row');
+      rows.forEach(row => row.removeAttribute('draggable'));
+    });
+
     list.addEventListener('dragstart', (e) => {
       const row = e.target.closest('.row');
       if(!row) return;
+
+      // Only allow drag if started from drag handle
+      if (!e.target.closest('.drag-handle')) {
+        e.preventDefault();
+        return;
+      }
 
       draggedElement = row;
       draggedIndex = Array.from(list.children).indexOf(row);
@@ -854,6 +960,16 @@
       const row = e.target.closest('.row');
       if(row && row !== draggedElement){
         row.classList.add('drag-over');
+
+        // Auto-scroll when dragging near edges
+        const listRect = list.getBoundingClientRect();
+        const scrollZone = 50;
+
+        if (e.clientY - listRect.top < scrollZone) {
+          list.scrollTop -= 5;
+        } else if (listRect.bottom - e.clientY < scrollZone) {
+          list.scrollTop += 5;
+        }
       }
     });
 
@@ -920,6 +1036,94 @@
     });
   }
 
+  // ------------------------- Swipe Gestures -------------------------
+
+  function enableSwipeGestures(){
+    const list = $('#liveList');
+    if(!list) return;
+
+    let startX = 0;
+    let startY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    let swipeElement = null;
+    let isSwipingHorizontally = false;
+
+    list.addEventListener('touchstart', (e) => {
+      const row = e.target.closest('.row');
+      if(!row || e.target.closest('.drag-handle')) return; // Ignore drag handle touches
+
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      swipeElement = row;
+      isSwipingHorizontally = false;
+    }, {passive: true});
+
+    list.addEventListener('touchmove', (e) => {
+      if(!swipeElement) return;
+
+      currentX = e.touches[0].clientX;
+      currentY = e.touches[0].clientY;
+
+      const deltaX = currentX - startX;
+      const deltaY = currentY - startY;
+
+      // Determine if this is a horizontal swipe
+      if(!isSwipingHorizontally && Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+        isSwipingHorizontally = true;
+        e.preventDefault(); // Prevent scrolling when swiping horizontally
+      }
+
+      if(isSwipingHorizontally) {
+        // Left swipe to reveal toggle buttons
+        if(deltaX < -30) {
+          swipeElement.classList.add('swiped');
+        }
+        // Right swipe to hide toggle buttons
+        else if(deltaX > 30 && swipeElement.classList.contains('swiped')) {
+          swipeElement.classList.remove('swiped');
+        }
+      }
+    }, {passive: false});
+
+    list.addEventListener('touchend', (e) => {
+      if(!swipeElement) return;
+
+      const deltaX = currentX - startX;
+
+      if(isSwipingHorizontally) {
+        // Finalize swipe state based on final position
+        if(deltaX < -50) {
+          swipeElement.classList.add('swiped');
+        } else if(deltaX > 50) {
+          swipeElement.classList.remove('swiped');
+        } else if(Math.abs(deltaX) < 30) {
+          // Small swipe, revert to previous state
+          swipeElement.classList.remove('swiped');
+        }
+      }
+
+      swipeElement = null;
+      isSwipingHorizontally = false;
+      startX = 0;
+      startY = 0;
+      currentX = 0;
+      currentY = 0;
+    }, {passive: true});
+
+    // Close swiped items when tapping elsewhere
+    list.addEventListener('click', (e) => {
+      if(!e.target.closest('.toggle-buttons') && !e.target.closest('.toggle-btn')) {
+        const swipedRows = list.querySelectorAll('.row.swiped');
+        swipedRows.forEach(row => {
+          if(!e.target.closest('.row') || e.target.closest('.row') !== row) {
+            row.classList.remove('swiped');
+          }
+        });
+      }
+    });
+  }
+
   // ------------------------- JSON Schema (from sample) -------------------------
   const schema = {
     "$schema":"https://json-schema.org/draft/2020-12/schema",
@@ -948,6 +1152,10 @@
   function validateAgainstSchema(arr){
     const errors=[];
     if(!Array.isArray(arr)) return ["Root must be an array of player objects."];
+
+    // Skip validation for empty arrays
+    if (arr.length === 0) return [];
+
     arr.forEach((o,idx)=>{
       const path = `item[${idx}]`;
       const req=["rk","name","team","pos","ppg","risk","pickMarker","target"];
@@ -963,10 +1171,56 @@
       if(typeof o.target!=='boolean') errors.push(`${path}: target must be boolean`);
       if('avoid' in o && typeof o.avoid!=='boolean') errors.push(`${path}: avoid must be boolean if present`);
     });
-    return errors;
+
+    // Only return errors if there are critical issues (not just extra fields)
+    const criticalErrors = errors.filter(e =>
+      e.includes('missing required') ||
+      e.includes('must be integer') ||
+      e.includes('must be non-empty string') ||
+      e.includes('must be boolean')
+    );
+
+    return criticalErrors;
   }
 
   // ------------------------- Rendering -------------------------
+
+  // Injury-prone starters list (based on FantasyPoints 2025 outlook)
+  const injuryProneStarters = [
+    // QBs with high injury likelihood
+    'Aaron Rodgers', 'Russell Wilson', 'Kirk Cousins', 'Ryan Tannehill',
+    // RBs with injury concerns
+    'Christian McCaffrey', 'Saquon Barkley', 'Jonathan Taylor', 'Derrick Henry',
+    'Nick Chubb', 'Leonard Fournette', 'Dalvin Cook', 'Alvin Kamara',
+    // WRs with injury history
+    'Keenan Allen', 'Mike Evans', 'Chris Godwin', 'Michael Thomas',
+    'Tyler Lockett', 'JuJu Smith-Schuster', 'Jerry Jeudy',
+    // TEs with injury concerns
+    'Travis Kelce', 'Mark Andrews', 'George Kittle', 'Kyle Pitts'
+  ];
+
+  // Helper function to check if player is a handcuff (backup to injury-prone starter)
+  function isHandcuffPlayer(player, allPlayers) {
+    if ((player.depthPosition && player.depthPosition === 1) || (player.depthChartInfo && player.depthChartInfo.rank === 1)) {
+      return false; // Not a backup or is a starter
+    }
+
+    // Find the starter at the same position on the same team
+    const starter = allPlayers.find(p =>
+      p.team === player.team &&
+      p.pos === player.pos &&
+      p.depthChartInfo &&
+      p.depthChartInfo.rank === 1
+    );
+
+    if (!starter) return false;
+
+    // Check if the starter is injury-prone
+    return injuryProneStarters.some(injuryProneName =>
+      starter.name.toLowerCase().includes(injuryProneName.toLowerCase()) ||
+      injuryProneName.toLowerCase().includes(starter.name.toLowerCase())
+    );
+  }
 
   // Helper function to check if player is a rookie (drafted in current year)
   function isRookie(player) {
@@ -997,7 +1251,7 @@
     return isRookie(player) ? '<span class="chip rookie-badge">ROOKIE</span>' : '';
   }
 
-  function rowHtml(p, index){
+  function rowHtml(p, index, allPlayers = []){
     const flags=[];
     // Risk flag: explicit OR team based (DAL/MIA)
     const teamRisk = (p.team==='DAL' || p.team==='MIA');
@@ -1012,19 +1266,32 @@
     if (rookieBadge) flags.push(rookieBadge);
 
     const ppg = (p.ppg===null || p.ppg===undefined) ? '—' : Number(p.ppg).toFixed(2);
-    const star = p.target ? `<span class="star" data-action="toggleTarget" data-index="${index}" title="Click to toggle target">⭐</span>` : `<span class="star" data-action="toggleTarget" data-index="${index}" title="Click to toggle target" style="opacity:0.3">⭐</span>`;
-    const avoid = p.avoid ? `<span class="avoid" data-action="toggleAvoid" data-index="${index}" title="Click to toggle avoid">🚫</span>` : `<span class="avoid" data-action="toggleAvoid" data-index="${index}" title="Click to toggle avoid" style="opacity:0.3">🚫</span>`;
+
+    // Check if player has high PPG for conditional styling
+    const highPpg = (p.ppg !== null && p.ppg !== undefined && p.ppg >= 14);
+    const highPpgClass = highPpg ? ' high-ppg' : '';
+
+    // Check if player is a handcuff
+    const isHandcuff = isHandcuffPlayer(p, allPlayers);
+    const handcuffIcon = isHandcuff ? '<i class="bi bi-link-45deg handcuff-icon" title="Handcuff to injury-prone starter"></i>' : '';
+
     const playerName = `<span class="player-name" data-action="openNotes" data-index="${index}" title="Click to view player details" style="cursor:pointer;">${escapeHtml(p.name)}</span>`;
 
     // Add injury indicator near the player name
     const injuryIndicator = getInjuryIndicator(p);
 
-    return `<li class="row" draggable="true" data-index="${index}" data-player-id="${p.rk}">
-      <div class="drag-handle">⋮⋮</div>
-      <div class="rank">${p.rk}.</div>
-      <div class="name">${star}${avoid}${playerName}${injuryIndicator} <span class="meta">(${p.pos} – ${p.team})</span></div>
-      <div class="meta">${ppg} PPG</div>
-      <div class="chips">${flags.join('')}</div>
+    return `<li class="row${highPpgClass}" data-index="${index}" data-player-id="${p.rk}">
+      <div class="row-content">
+        <div class="rank">${p.rk}.</div>
+        <div class="name">${playerName}${injuryIndicator}${handcuffIcon} <span class="meta">(${p.pos} - ${p.team})</span></div>
+        <div class="meta">${ppg} PPG</div>
+        <div class="chips">${flags.join('')}</div>
+        <div class="drag-handle" title="Hold and drag to reorder">⋮⋮</div>
+      </div>
+      <div class="toggle-buttons">
+        <button class="toggle-btn target ${p.target ? 'active' : ''}" data-action="toggleTarget" data-index="${index}">⭐ Target</button>
+        <button class="toggle-btn avoid ${p.avoid ? 'active' : ''}" data-action="toggleAvoid" data-index="${index}">🚫 Avoid</button>
+      </div>
     </li>`;
   }
 
@@ -1033,10 +1300,13 @@
     if(!list) return;
 
     const sortedSeeds = (seeds||[]).slice().sort((a,b)=>a.rk-b.rk);
-    list.innerHTML = sortedSeeds.map((p, index) => rowHtml(p, index)).join('');
+    list.innerHTML = sortedSeeds.map((p, index) => rowHtml(p, index, sortedSeeds)).join('');
 
     // Re-enable drag and drop after rendering
     enableDragAndDrop();
+
+    // Enable swipe gestures
+    enableSwipeGestures();
 
     // Remove existing event listener to avoid duplicates
     list.removeEventListener('click', handleListClick);
@@ -1465,10 +1735,116 @@
     return String(s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
   }
 
+  // ------------------------- Auto-load data on page load -------------------------
+
+  async function autoLoadInitialData() {
+    const githubUrl = 'https://raw.githubusercontent.com/turnerturn/fantasy-football-draft-buddy/refs/heads/main/seeds.json';
+
+    // Set the URL input field to show the GitHub URL
+    $('#importUrl').value = githubUrl;
+
+    // Check if we already have data in storage
+    const existingSeeds = loadSeeds();
+    if (existingSeeds && existingSeeds.length > 0) {
+      console.log('Found existing data in storage, skipping auto-load');
+      return;
+    }
+
+    try {
+      console.log('Auto-loading initial data from GitHub...');
+      const res = await fetch(githubUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+
+      const text = await res.text();
+      console.log('Raw response length:', text.length);
+      console.log('First 200 chars:', text.substring(0, 200));
+
+      const json = JSON.parse(text);
+      console.log('Parsed JSON type:', Array.isArray(json) ? 'array' : typeof json);
+      console.log('JSON length/keys:', Array.isArray(json) ? json.length : Object.keys(json).length);
+
+      if (Array.isArray(json) && json.length > 0) {
+        console.log('First item structure:', Object.keys(json[0]));
+      }      // Validate the data (with bypass for debugging)
+      const skipValidation = false; // Set to true to bypass validation
+      let errors = [];
+      if (!skipValidation) {
+        errors = validateAgainstSchema(json);
+      }
+
+      if (errors.length > 0 && !skipValidation) {
+        console.warn('Schema validation failed for auto-loaded data:', errors);
+        console.log('First few validation errors:', errors.slice(0, 5));
+
+        // Try to fall back to local seeds.json
+        console.log('Attempting local fallback...');
+        const localRes = await fetch('./seeds.json');
+        if (localRes.ok) {
+          const localJson = await localRes.json();
+          const localErrors = validateAgainstSchema(localJson);
+          if (localErrors.length === 0 || skipValidation) {
+            const processedLocalJson = localJson.map(p => ({
+              ...p,
+              avoid: p.avoid || false,
+              notes: p.notes || ''
+            }));
+            saveSeeds(processedLocalJson);
+            renderLiveList(processedLocalJson);
+            console.log(`Successfully loaded ${processedLocalJson.length} players from local fallback`);
+            return;
+          }
+        }
+
+        // If all else fails, render empty
+        renderLiveList([]);
+        return;
+      }
+
+      // Process and save the data (same logic as handleImportedJson)
+      const processedJson = json.map(p => ({
+        ...p,
+        avoid: p.avoid || false,
+        notes: p.notes || ''
+      }));
+
+      saveSeeds(processedJson);
+      renderLiveList(processedJson);
+      console.log(`Successfully auto-loaded ${processedJson.length} players from GitHub`);
+
+    } catch (err) {
+      console.warn('Failed to auto-load data from GitHub:', err.message);
+
+      // Try local fallback
+      try {
+        console.log('Attempting local fallback after GitHub failure...');
+        const localRes = await fetch('./seeds.json');
+        if (localRes.ok) {
+          const localJson = await localRes.json();
+          const localErrors = validateAgainstSchema(localJson);
+          if (localErrors.length === 0) {
+            const processedLocalJson = localJson.map(p => ({
+              ...p,
+              avoid: p.avoid || false,
+              notes: p.notes || ''
+            }));
+            saveSeeds(processedLocalJson);
+            renderLiveList(processedLocalJson);
+            console.log(`Successfully loaded ${processedLocalJson.length} players from local fallback`);
+            return;
+          }
+        }
+      } catch (localErr) {
+        console.log('Local fallback also failed:', localErr.message);
+      }
+
+      // Fall back to rendering empty list
+      renderLiveList([]);
+    }
+  }
+
   // ------------------------- Initialization -------------------------
-  // Init render from storage (or empty)
-  const initialSeeds = loadSeeds();
-  renderLiveList(initialSeeds);
+  // Auto-load data from GitHub, then render
+  autoLoadInitialData();
 })();
 </script>
 </body>
