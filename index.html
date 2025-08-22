@@ -1111,6 +1111,34 @@
       currentY = 0;
     }, {passive: true});
 
+    // Mouse drag support for swipe left/right (desktop)
+    let mouseDownX = null;
+    let mouseDraggingRow = null;
+    list.addEventListener('mousedown', (e) => {
+      const row = e.target.closest('.row');
+      if (!row || e.target.closest('.drag-handle')) return;
+      mouseDownX = e.clientX;
+      mouseDraggingRow = row;
+    });
+    list.addEventListener('mousemove', (e) => {
+      if (mouseDownX !== null && mouseDraggingRow) {
+        const deltaX = e.clientX - mouseDownX;
+        // Only trigger if horizontal drag
+        if (Math.abs(deltaX) > 10) {
+          e.preventDefault();
+        }
+        if (deltaX < -50) {
+          mouseDraggingRow.classList.add('swiped');
+        } else if (deltaX > 50) {
+          mouseDraggingRow.classList.remove('swiped');
+        }
+      }
+    });
+    list.addEventListener('mouseup', (e) => {
+      mouseDownX = null;
+      mouseDraggingRow = null;
+    });
+
     // Close swiped items when tapping elsewhere
     list.addEventListener('click', (e) => {
       if(!e.target.closest('.toggle-buttons') && !e.target.closest('.toggle-btn')) {
@@ -1280,10 +1308,15 @@
     // Add injury indicator near the player name
     const injuryIndicator = getInjuryIndicator(p);
 
+    // Always show target/avoid icons if true
+    let alwaysIcons = '';
+    if (p.target) alwaysIcons += `<span class="chip flag-blue" title="Target">⭐</span>`;
+    if (p.avoid) alwaysIcons += `<span class="chip flag-grey" title="Avoid">🚫</span>`;
+
     return `<li class="row${highPpgClass}" data-index="${index}" data-player-id="${p.rk}">
       <div class="row-content">
         <div class="rank">${p.rk}.</div>
-        <div class="name">${playerName}${injuryIndicator}${handcuffIcon} <span class="meta">(${p.pos} - ${p.team})</span></div>
+        <div class="name">${playerName}${injuryIndicator}${handcuffIcon} <span class="meta">(${p.pos} - ${p.team})</span> ${alwaysIcons}</div>
         <div class="meta">${ppg} PPG</div>
         <div class="chips">${flags.join('')}</div>
         <div class="drag-handle" title="Hold and drag to reorder">⋮⋮</div>
