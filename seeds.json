@@ -645,7 +645,7 @@
     "pos": "RB",
     "ppg": 19.79,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 3,
@@ -889,7 +889,7 @@
     "pos": "RB",
     "ppg": 17.55,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 4,
@@ -939,7 +939,7 @@
     "pos": "TE",
     "ppg": 15.97,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 4,
@@ -989,7 +989,7 @@
     "pos": "WR",
     "ppg": 17.31,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 4,
@@ -1139,7 +1139,7 @@
     "pos": "RB",
     "ppg": 19.02,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 5,
@@ -2024,7 +2024,7 @@
     "pos": "WR",
     "ppg": 14.23,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 7,
@@ -2099,7 +2099,7 @@
     "pos": "TE",
     "ppg": 12.28,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 7,
@@ -2461,7 +2461,7 @@
     "pos": "TE",
     "ppg": 11.11,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 7,
@@ -2713,7 +2713,7 @@
     "pos": "WR",
     "ppg": null,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 8,
@@ -4643,7 +4643,7 @@
     "pos": "TE",
     "ppg": null,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 9,
@@ -4676,7 +4676,16 @@
     "starter": false,
     "outlook": "Primary handcuff for Christian McCaffrey. Showed big-play ability when given opportunities.",
     "notes": "Added as McCaffrey handcuff (CSV rank #157)",
-    "avoid": false
+    "avoid": false,
+    "depthChartInfo": {
+      "rank": 2,
+      "team": 25,
+      "displayName": "Isaac Guerendo",
+      "draft": "Year: 2024 Round: 4 Pick: 129",
+      "status": "Active",
+      "injuries": [],
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/athletes/4372561?lang=en&region=us"
+    }
   },
   {
     "rk": 152,
@@ -4685,7 +4694,7 @@
     "pos": "RB",
     "ppg": null,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 10,
@@ -4693,7 +4702,52 @@
     "starter": false,
     "outlook": "Primary handcuff for De'Von Achane. Rookie with good speed and receiving ability.",
     "notes": "Added as Achane handcuff (CSV rank #175)",
-    "avoid": false
+    "avoid": false,
+    "depthChartInfo": {
+      "rank": 2,
+      "team": 15,
+      "displayName": "Jaylen Wright",
+      "draft": "Year: 2024 Round: 4 Pick: 120",
+      "status": "Active",
+      "injuries": [
+        {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/athletes/4682745/injuries/602114?lang=en&region=us",
+          "id": "602114",
+          "longComment": "Per Wolfe, Wright subsequently headed into the Dolphins' medical facility for more evaluation. With De'Von Achane managing a calf injury and Wright having left the session, Ollie Gordon is handling added running back reps Thursday.",
+          "shortComment": "Wright walked off the practice field slowly Thursday with apparent injury, Cameron Wolfe of NFL Network reports.",
+          "status": "Questionable",
+          "date": "2025-08-21T15:37Z",
+          "athlete": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/athletes/4682745?lang=en&region=us"
+          },
+          "team": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/teams/15?lang=en&region=us"
+          },
+          "source": {
+            "id": "1",
+            "description": "basic/manual",
+            "state": "basic"
+          },
+          "type": {
+            "id": "2",
+            "name": "INJURY_STATUS_QUESTIONABLE",
+            "description": "questionable",
+            "abbreviation": "Q"
+          },
+          "details": {
+            "fantasyStatus": {
+              "description": "QUESTIONABLE",
+              "abbreviation": "QUESTIONABLE"
+            },
+            "type": "Undisclosed",
+            "location": "Other",
+            "side": "Not Specified",
+            "returnDate": "2025-08-23"
+          }
+        }
+      ],
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/athletes/4682745?lang=en&region=us"
+    }
   },
   {
     "rk": 153,
@@ -4710,7 +4764,16 @@
     "starter": false,
     "outlook": "Primary handcuff for Saquon Barkley. Strong receiving back with goal line upside.",
     "notes": "Added as Barkley handcuff (CSV rank #217)",
-    "avoid": false
+    "avoid": false,
+    "depthChartInfo": {
+      "rank": 2,
+      "team": 21,
+      "displayName": "Will Shipley",
+      "draft": "Year: 2024 Round: 4 Pick: 127",
+      "status": "Active",
+      "injuries": [],
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/athletes/4431545?lang=en&region=us"
+    }
   },
   {
     "rk": 154,
@@ -4719,7 +4782,7 @@
     "pos": "RB",
     "ppg": null,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 11,
@@ -4727,7 +4790,16 @@
     "starter": false,
     "outlook": "Primary handcuff for Javonte Williams. Veteran with proven NFL production.",
     "notes": "Added as Williams handcuff (CSV rank #228)",
-    "avoid": false
+    "avoid": false,
+    "depthChartInfo": {
+      "rank": 2,
+      "team": 6,
+      "displayName": "Miles Sanders",
+      "draft": "Year: 2019 Round: 2 Pick: 53",
+      "status": "Active",
+      "injuries": [],
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/athletes/4045163?lang=en&region=us"
+    }
   },
   {
     "rk": 155,
@@ -4736,15 +4808,24 @@
     "pos": "WR",
     "ppg": null,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 12,
-    "depthPosition": 2,
+    "depthPosition": 3,
     "starter": false,
     "outlook": "Primary handcuff for CeeDee Lamb. Strong hands and red zone target.",
     "notes": "Added as Lamb handcuff (CSV rank #257)",
-    "avoid": false
+    "avoid": false,
+    "depthChartInfo": {
+      "rank": 3,
+      "team": 6,
+      "displayName": "Jalen Tolbert",
+      "draft": "Year: 2022 Round: 3 Pick: 88",
+      "status": "Active",
+      "injuries": [],
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/athletes/4249417?lang=en&region=us"
+    }
   },
   {
     "rk": 156,
@@ -4753,14 +4834,23 @@
     "pos": "WR",
     "ppg": null,
     "injured": false,
-    "risk": false,
+    "risk": true,
     "pickMarker": "",
     "target": false,
     "tier": 12,
-    "depthPosition": 2,
+    "depthPosition": 3,
     "starter": false,
     "outlook": "Primary handcuff for Tyreek Hill. Rookie with speed and return ability.",
     "notes": "Added as Hill handcuff (CSV rank #264)",
-    "avoid": false
+    "avoid": false,
+    "depthChartInfo": {
+      "rank": 3,
+      "team": 15,
+      "displayName": "Malik Washington",
+      "draft": "Year: 2024 Round: 6 Pick: 184",
+      "status": "Active",
+      "injuries": [],
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/athletes/4569603?lang=en&region=us"
+    }
   }
 ]
