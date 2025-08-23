@@ -6,7 +6,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Turner - 2025 Big Board (Starter)</title>
+  <title>Turner - 2025 Big Board</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
   <style>
     :root{
@@ -15,104 +15,47 @@
     }
     * { box-sizing: border-box; }
     html,body{
-      margin:0;padding:0;
-      background:var(--bg);color:var(--fg);
-      font:clamp(14px, 2.5vw, 16px)/1.4 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
-      height:100vh;overflow:hidden;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
+      margin:0;padding:0;background:var(--bg);color:var(--fg);
+      font:clamp(14px, 2.5vw, 16px)/1.4 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
     }
     a{color:var(--accent);text-decoration:none}
     a:hover{text-decoration:underline}
 
     /* NAV */
-    .nav{
-      position:sticky;top:0;z-index:100;
-      backdrop-filter:saturate(150%) blur(6px);
+    .nav{position:sticky;top:0;z-index:100;backdrop-filter:saturate(150%) blur(6px);
       background:linear-gradient(180deg,rgba(11,14,20,.95),rgba(11,14,20,.9));
-      border-bottom:1px solid var(--border);
-      touch-action:manipulation;
-    }
-    .nav .wrap{
-      max-width:100%;margin:0;
-      display:flex;align-items:center;gap:clamp(6px, 2vw, 10px);
-      padding:clamp(8px, 2vh, 12px) clamp(12px, 3vw, 16px);
-      overflow-x:auto;
-      scrollbar-width:none;-ms-overflow-style:none;
-    }
+      border-bottom:1px solid var(--border);touch-action:manipulation}
+    .nav .wrap{max-width:100%;margin:0;display:flex;align-items:center;gap:clamp(6px, 2vw, 10px);
+      padding:clamp(8px, 2vh, 12px) clamp(12px, 3vw, 16px);overflow-x:auto;scrollbar-width:none}
     .nav .wrap::-webkit-scrollbar{display:none}
     .brand{font-weight:700;font-size:clamp(14px, 3.5vw, 18px);white-space:nowrap}
     .spacer{flex:1;min-width:8px}
-    .btn{
-      appearance:none;border:1px solid var(--border);
-      background:var(--chip);color:var(--fg);
-      padding:clamp(6px, 1.5vw, 8px) clamp(8px, 2.5vw, 12px);
-      border-radius:10px;cursor:pointer;
-      font-size:clamp(12px, 2.2vw, 14px);
-      white-space:nowrap;flex-shrink:0;
-      touch-action:manipulation;
-      transition:all 0.2s ease;
-      min-height:44px;
-    }
+    .btn{appearance:none;border:1px solid var(--border);background:var(--chip);color:var(--fg);
+      padding:clamp(6px, 1.5vw, 8px) clamp(8px, 2.5vw, 12px);border-radius:10px;cursor:pointer;
+      font-size:clamp(12px, 2.2vw, 14px);white-space:nowrap;flex-shrink:0;touch-action:manipulation;
+      transition:all .2s ease;min-height:44px}
     .btn:hover,.btn:focus{filter:brightness(1.1);outline:2px solid var(--accent);outline-offset:2px}
-    .btn:active{transform:scale(0.98)}
+    .btn:active{transform:scale(.98)}
     .btn.primary{background:var(--accent);border-color:transparent;color:#071024}
     .btn.ghost{background:transparent}
-    .btn.danger{background:#2b1519;border-color:#51252c;color:#ff9aa5}
     .legend{color:var(--muted);font-size:clamp(10px, 2vw, 12px)}
 
     /* LAYOUT */
-    .container{
-      height:calc(100vh - 60px);
-      display:flex;flex-direction:column;
-      padding:0 clamp(12px, 3vw, 16px);
-      overflow:hidden;
-    }
-    .card{
-      background:var(--card);border:1px solid var(--border);border-radius:14px;
-      flex:1;overflow:hidden;display:flex;flex-direction:column;
-      margin:clamp(12px, 2vh, 20px) 0;
-    }
+    .container{height:calc(100vh - 60px);display:flex;flex-direction:column;padding:0 clamp(12px, 3vw, 16px);overflow:hidden}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;flex:1;overflow:hidden;display:flex;flex-direction:column;margin:clamp(12px, 2vh, 20px) 0}
     .list{list-style:none;margin:0;padding:0;flex:1;overflow:hidden}
-    .row{
-      display:flex;align-items:center;gap:clamp(8px, 2vw, 10px);
+    .row{display:flex;align-items:center;gap:clamp(8px, 2vw, 10px);
       padding:clamp(10px, 2.5vh, 12px) clamp(10px, 2.5vw, 12px);
-      border-bottom:1px solid var(--border);
-      cursor:pointer;user-select:none;
-      transition:background 0.2s ease;
-      touch-action:manipulation;
-      position:relative;
-      overflow:hidden;
-      background:transparent;
-    }
+      border-bottom:1px solid var(--border);cursor:pointer;user-select:none;
+      transition:background .2s ease;position:relative;background:transparent}
     .row:last-child{border-bottom:none}
-    .row:hover{background:rgba(255,255,255,0.02)}
-
-    /* High PPG decoration */
-    .row.high-ppg { border-left: 3px solid var(--ok); background: linear-gradient(90deg, rgba(107,217,123,.1), var(--card)); }
-
-    .row-content {
-      display:flex;align-items:center;gap:clamp(8px, 2vw, 10px);
-      width:100%;
-      position:relative;
-      z-index:2;
-    }
-
-    /* Removed swipe UI */
-    .toggle-buttons{ display:none !important; }
-
-    .drag-handle{
-      color:var(--muted);font-size:18px;
-      cursor:grab;padding: clamp(4px, 1vw, 6px);
-      touch-action:none;
-      border-radius:4px;
-      order:999; /* right edge */
-      margin-left:auto;
-    }
-    .drag-handle:active{cursor:grabbing; background: rgba(255,255,255,0.1);}
-    .drag-handle:hover{background: rgba(255,255,255,0.05);}
-
-    .handcuff-icon { color:#ffa500;font-size:clamp(12px, 2.5vw, 14px);margin-left:clamp(4px, 1vw, 6px);opacity:.8; }
+    .row:hover{background:rgba(255,255,255,.02)}
+    .row.high-ppg{border-left:3px solid var(--ok);background:linear-gradient(90deg, rgba(107,217,123,.1), var(--card))}
+    .row-content{display:flex;align-items:center;gap:clamp(8px, 2vw, 10px);width:100%}
+    .drag-handle{color:var(--muted);font-size:18px;cursor:grab;padding: clamp(4px, 1vw, 6px);touch-action:none;border-radius:4px;margin-left:auto}
+    .drag-handle:active{cursor:grabbing;background: rgba(255,255,255,.1)}
+    .drag-handle:hover{background: rgba(255,255,255,.05)}
     .rank{min-width:clamp(30px, 8vw, 40px);text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
     .name{flex:1;min-width:0}
     .meta{color:var(--muted);font-variant-numeric:tabular-nums;font-size:clamp(11px, 2.2vw, 13px)}
@@ -120,51 +63,31 @@
     .chip{padding:2px clamp(6px, 1.5vw, 8px);border-radius:999px;background:var(--chip);border:1px solid var(--border);font-size:clamp(10px, 2vw, 12px);color:var(--muted);white-space:nowrap}
     .flag-red{color:#fff;background:#7a1f28;border-color:#b13f4c}
     .pick{background:#0f2a47;border-color:#1c4b7f;color:#91c8ff}
-
     .depth-rank{background:#1a4b3a;border-color:#2d7a5c;color:#66d49f;font-weight:600;font-size:clamp(9px, 1.8vw, 11px)}
     .depth-rank.rank-2{background:#4b3d1a;border-color:#7a6c2d;color:#d4c166}
     .depth-rank.rank-3{background:#4b1a1a;border-color:#7a2d2d;color:#d46666}
     .depth-rank.rank-backup{background:#2a2a2a;border-color:#444;color:#aaa}
-
     .rookie-badge{background:linear-gradient(135deg, var(--gold), #e6a800);border:1px solid #d49400;color:#071024;font-weight:700;font-size:clamp(9px, 1.8vw, 11px)}
-    .injury-indicator{color:#ff6b6b;padding:clamp(2px, .5vw, 3px);font-size:clamp(11px, 2.2vw, 14px);opacity:.9}
+    .injury-indicator{color:#ff6b6b;padding:2px;font-size:clamp(11px, 2.2vw, 14px);opacity:.9}
+    .handcuff-icon{color:#ffa500;font-size:clamp(12px, 2.5vw, 14px);margin-left:4px;opacity:.8}
+    .row.assigned{opacity:.88;background:linear-gradient(90deg, rgba(106,160,255,.14), rgba(106,160,255,0));border-left:3px solid var(--accent)}
 
-    .star{color:var(--gold);margin-right:clamp(4px, 1vw, 6px);cursor:pointer;padding:clamp(2px, .5vw, 4px);border-radius:50%;transition:all .2s}
-    .star:hover{background:rgba(240,196,25,.2);transform:scale(1.1)}
-    .avoid{color:#ff4444;margin-right:clamp(4px, 1vw, 6px);cursor:pointer;padding:clamp(2px, .5vw, 4px);border-radius:50%;transition:all .2s}
-    .avoid:hover{background:rgba(255,68,68,.2);transform:scale(1.1)}
-    .notes-icon{color:#6aa0ff;margin-right:clamp(4px, 1vw, 6px);cursor:pointer;padding:clamp(2px, .5vw, 4px);border-radius:50%;transition:all .2s}
-    .notes-icon:hover{background:rgba(106,160,255,.2);transform:scale(1.1)}
-    .player-name{color:var(--fg);cursor:pointer;padding:clamp(2px, .5vw, 4px) clamp(4px, 1vw, 6px);border-radius:6px;transition:all .2s}
-    .player-name:hover{background:rgba(106,160,255,.2);color:var(--accent)}
-
-    /* SCREEN: scrollable list */
+    /* Scrollable list: trackpad/touch friendly */
     #liveList{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
     #liveList::-webkit-scrollbar{width:6px}
-    #liveList::-webkit-scrollbar-track{background:transparent}
     #liveList::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-    #liveList::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+    #liveList::-webkit-scrollbar-track{background:transparent}
 
     .legend-row{position:sticky;top:0;background:var(--card);z-index:10;border-bottom:2px solid var(--border);padding:clamp(8px, 2vh, 12px) clamp(10px, 2.5vw, 12px)}
-    .legend-row .legend{font-size:clamp(10px, 2vw, 12px);line-height:1.3;overflow-wrap:break-word}
+    .legend-row .legend{font-size:clamp(10px, 2vw, 12px);line-height:1.3}
 
-    /* Drag visuals */
-    .drag-ghost{
-      position:fixed;left:0;right:0;pointer-events:none;z-index:1000;
-      transform:translateY(-50%); /* y is set to center under pointer */
-      opacity:.95;box-shadow:0 12px 24px rgba(0,0,0,.45);
-    }
+    /* Pointer DnD visuals */
+    .drag-ghost{position:fixed;left:0;right:0;pointer-events:none;z-index:1000;transform:translateY(-50%);opacity:.95;box-shadow:0 12px 24px rgba(0,0,0,.45)}
     .drag-ghost .row{background:rgba(20,26,40,.98);border-color:var(--accent)}
-    .placeholder{
-      height:var(--ph-h, 48px);
-      border:2px dashed var(--accent);
-      border-radius:10px;
-      margin:2px 8px;
-      background:rgba(106,160,255,.08);
-    }
+    .placeholder{height:var(--ph-h, 48px);border:2px dashed var(--accent);border-radius:10px;margin:2px 8px;background:rgba(106,160,255,.08)}
     body.dragging { user-select:none; cursor:grabbing; }
 
-    /* PRINT (unchanged) */
+    /* PRINT */
     @media print{
       body{background:#fff;color:#000;margin:0;padding:8px}
       .nav, #liveSection{display:none !important}
@@ -182,38 +105,28 @@
       .print-col .chips{display:flex;gap:2px;align-items:center}
       .print-col .chip{padding:1px 3px;border-radius:2px;font-size:8px;white-space:nowrap}
       .print-col .drag-handle{display:none}
-      .print-col .star{color:#f90;font-size:10px}
-      .print-col .avoid{color:#ff4444;font-size:10px}
-      .print-col .notes-icon{display:none}
-      .flag-red{background:#ffebee;color:#c62828;border:1px solid #ef5350}
-      .pick{background:#e3f2fd;color:#1565c0;border:1px solid #64b5f6}
-      footer.print{ position:fixed;bottom:4px;left:0;right:0;text-align:center;color:#666;font-size:10px;background:rgba(255,255,255,.9);padding:2px 0 }
     }
     #printSection{display:none}
 
-    /* Modals and other styles below unchanged (trimmed for brevity in this comment) */
+    /* Modals */
     .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:clamp(16px, 4vw, 20px);z-index:9999;backdrop-filter:blur(4px)}
     .modal{width:min(90vw, 600px);max-height:90vh;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,.7);overflow:hidden;display:flex;flex-direction:column}
-    .modal-header{display:flex;align-items:center;justify-content:space-between;padding:clamp(12px, 3vw, 16px);border-bottom:1px solid var(--border);flex-shrink:0}
-    .modal-title{font-weight:700;font-size:clamp(16px, 3.5vw, 18px)}
-    .modal-close{border:none;background:transparent;color:var(--muted);font-size:24px;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:8px;touch-action:manipulation}
+    .modal-header{display:flex;align-items:center;gap:10px;justify-content:flex-start;padding:clamp(12px, 3vw, 16px);border-bottom:1px solid var(--border);flex-shrink:0}
+    .modal-title{font-weight:700;font-size:clamp(16px, 3.5vw, 18px);display:flex;align-items:center;gap:10px}
+    .modal-close{margin-left:auto;border:none;background:transparent;color:var(--muted);font-size:24px;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:8px}
     .modal-close:hover,.modal-close:focus{background:rgba(255,255,255,.1);outline:2px solid var(--accent);outline-offset:2px}
     .modal-body{padding:clamp(12px, 3vw, 16px);display:flex;flex-direction:column;gap:clamp(12px, 3vw, 16px);overflow-y:auto;flex:1}
     .modal-footer{padding:clamp(12px, 3vw, 16px);border-top:1px solid var(--border);display:flex;gap:clamp(8px, 2vw, 12px);justify-content:flex-end;flex-shrink:0}
-    .form-row{display:flex;gap:clamp(8px, 2vw, 12px);align-items:flex-end;flex-wrap:wrap}
-    .form-group{display:flex;flex-direction:column;gap:clamp(6px, 1.5vw, 8px);flex:1;min-width:200px}
-    .form-group label{font-weight:600;font-size:clamp(13px, 2.5vw, 15px)}
-    .form-group input[type="text"], .form-group input[type="file"], textarea{background:#0f1524;color:var(--fg);border:1px solid var(--border);border-radius:10px;padding:clamp(10px, 2.5vw, 12px);font-size:clamp(14px, 3vw, 16px);min-height:44px}
-    .form-group input:focus, textarea:focus{outline:2px solid var(--accent);outline-offset:2px;border-color:var(--accent)}
-    .help{color:var(--muted);font-size:clamp(11px, 2.2vw, 13px);line-height:1.3}
-    .or{display:flex;align-items:center;gap:clamp(8px, 2vw, 12px);color:var(--muted);font-style:italic;margin:clamp(8px, 2vh, 12px) 0}
-    .or::before,.or::after{content:"";flex:1;height:1px;background:var(--border)}
+    .header-actions{display:flex;gap:8px;align-items:center}
+    .icon-toggle{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);background:var(--chip);color:var(--fg);border-radius:8px;cursor:pointer;font-size:13px;user-select:none;transition:filter .2s ease, transform .05s ease}
+    .icon-toggle .bi{font-size:16px}
+    .icon-toggle:active{transform:scale(.98)}
+    .icon-toggle.is-on.star{background:rgba(240,196,25,.15);border-color:#caa72a;color:#f0c419}
+    .icon-toggle.is-on.warn{background:rgba(255,93,93,.15);border-color:#b34a4a;color:#ff5d5d}
+
     .table{width:100%;border-collapse:collapse;border:1px solid var(--border);font-size:clamp(11px, 2.2vw, 13px);max-height:40vh;overflow-y:auto;display:block}
-    .table thead, .table tbody{display:table;width:100%;table-layout:fixed}
-    .table th,.table td{border-bottom:1px solid var(--border);padding:clamp(6px, 1.5vw, 8px);text-align:left;word-break:break-word}
-    .table th{background:var(--chip);font-weight:600;position:sticky;top:0}
-    .warn{color:var(--warn)} .error{color:var(--danger)}
-    /* Player notes + details (unchanged)… */
+    .table th,.table td{border-bottom:1px solid var(--border);padding:clamp(6px, 1.5vw, 8px);text-align:left}
+    .help{color:var(--muted);font-size:clamp(11px, 2.2vw, 13px)}
   </style>
 </head>
 <body>
@@ -224,6 +137,7 @@
       <div class="spacer"></div>
       <button class="btn" id="btnUpload">Import Data</button>
       <button class="btn" id="btnReset">Reset</button>
+      <button class="btn" id="btnRosters">Rosters</button>
       <button class="btn primary" id="btnPrint">Print</button>
     </div>
   </div>
@@ -232,7 +146,7 @@
   <div class="container" id="liveSection">
     <div class="card">
       <div class="legend-row">
-        <div class="legend">⚠️ = Warning · ⭐ = Target (click to toggle) · 🚫 = Avoid (click to toggle) · D1-D3 = Depth Chart Rank · ROOKIE = Draft year 2025 · <i class="bi bi-hospital"></i> = Injury history · Player names are clickable for details · ⋮⋮ = Drag to reorder</div>
+        <div class="legend">Double-click a player row to open details. ⭐ Target and ⚠ Warning can be toggled in the modal. Double-click the modal body to assign a league team. Drag via ⋮⋮ to reorder.</div>
       </div>
       <ul class="list" id="liveList"></ul>
     </div>
@@ -255,24 +169,22 @@
       <div class="modal-body" id="modalBody">
         <div id="step1">
           <div class="form-row">
-            <div class="form-group">
+            <div class="form-group" style="flex:1">
               <label for="importUrl">Enter URL</label>
-              <input type="text" id="importUrl" placeholder="Enter Url" aria-describedby="importUrlHelp" />
-              <small id="importUrlHelp" class="help warn">If a file is uploaded, the URL data will be ignored.</small>
+              <input type="text" id="importUrl" placeholder="Enter Url" aria-describedby="importUrlHelp" style="width:100%;min-height:44px;background:#0f1524;color:var(--fg);border:1px solid var(--border);border-radius:10px;padding:10px" />
+              <small id="importUrlHelp" class="help">If a file is uploaded, the URL data will be ignored.</small>
             </div>
             <button class="btn" id="btnLoadUrl">Load Data</button>
           </div>
-          <div class="or">or</div>
+          <div class="or" style="margin:10px 0;color:var(--muted)">or</div>
           <div class="form-group">
             <label for="importFile">Upload File</label>
             <input type="file" id="importFile" accept=".json" />
           </div>
-          <div id="schemaBlock">
-            <details>
-              <summary>JSON Schema (expected file format)</summary>
-              <pre id="jsonSchema" style="white-space:pre-wrap"></pre>
-            </details>
-          </div>
+          <details style="margin-top:10px">
+            <summary>JSON Schema (expected file format)</summary>
+            <pre id="jsonSchema" style="white-space:pre-wrap;background:#0a0d12;border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--muted)"></pre>
+          </details>
         </div>
         <div id="step2" style="display:none">
           <div class="legend">Preview first 20 rows</div>
@@ -294,45 +206,61 @@
     </div>
   </div>
 
-  <!-- Modal: Player Notes (unchanged) -->
+  <!-- Modal: Player Details / Notes -->
   <div class="modal-backdrop" id="notesModalBackdrop" aria-hidden="true" style="display:none">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="notesModalTitle">
       <div class="modal-header">
-        <div class="modal-title" id="notesModalTitle">Player Details & Notes</div>
+        <div class="modal-title" id="notesModalTitle"><span id="playerDetailsName">Player Name</span></div>
+        <div class="header-actions">
+          <button class="icon-toggle star" id="toggleTargetBtn" title="Toggle Target">
+            <i class="bi bi-star" id="toggleTargetIcon"></i><span>Target</span>
+          </button>
+          <button class="icon-toggle warn" id="toggleWarnBtn" title="Toggle Warning">
+            <i class="bi bi-exclamation-triangle" id="toggleWarnIcon"></i><span>Warning</span>
+          </button>
+        </div>
         <button class="modal-close" id="notesModalClose" aria-label="Close">×</button>
       </div>
+
       <div class="modal-body" id="notesModalBody">
         <div class="player-details">
-          <h3 id="playerDetailsName">Player Name</h3>
-          <div class="player-info-grid">
+          <div class="player-info-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
             <div class="info-row"><strong>Rank:</strong> <span id="playerRank"></span></div>
             <div class="info-row"><strong>Team:</strong> <span id="playerTeam"></span></div>
             <div class="info-row"><strong>Position:</strong> <span id="playerPos"></span></div>
             <div class="info-row"><strong>PPG:</strong> <span id="playerPPG"></span></div>
           </div>
-          <div id="depthChartSection" class="depth-chart-section" style="display:none">
-            <h4>Depth Chart Information</h4>
-            <div class="depth-info-grid">
-              <div class="depth-info-item"><strong>Depth Rank:</strong> <span id="depthRank" class="depth-rank-badge"></span></div>
+
+          <div id="depthChartSection" class="depth-chart-section" style="display:none;margin-top:8px;padding:8px;background:rgba(106,160,255,.1);border:1px solid var(--accent);border-radius:8px">
+            <h4 style="margin:0 0 6px 0;color:var(--accent);font-size:16px">Depth Chart Information</h4>
+            <div class="depth-info-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">
+              <div class="depth-info-item"><strong>Depth Rank:</strong> <span id="depthRank" class="chip"></span></div>
               <div class="depth-info-item"><strong>NFL Team:</strong> <span id="depthTeam"></span></div>
               <div class="depth-info-item"><strong>Draft Info:</strong> <span id="depthDraft"></span></div>
-              <div class="depth-info-item"><strong>Status:</strong> <span id="depthStatus" class="status-badge"></span></div>
+              <div class="depth-info-item"><strong>Status:</strong> <span id="depthStatus" class="chip"></span></div>
             </div>
           </div>
-          <div id="injuriesSection" class="injuries-section" style="display:none">
-            <h4>Injury Report</h4>
-            <div id="injuriesList" class="injuries-list"></div>
+
+          <div id="injuriesSection" class="injuries-section" style="display:none;margin-top:8px;padding:8px;background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px">
+            <h4 style="margin:0 0 6px 0;color:var(--danger);font-size:16px">Injury Report</h4>
+            <div id="injuriesList"></div>
           </div>
-          <details class="json-details"><summary>Full JSON Details</summary><pre id="playerJsonDetails" class="json-display"></pre></details>
-          <div class="player-outlook" id="playerOutlook" style="display:none">
-            <h4>Outlook</h4><p id="playerOutlookText"></p>
+
+          <details style="margin-top:8px"><summary>Full JSON Details</summary><pre id="playerJsonDetails" style="white-space:pre-wrap;background:#0a0d12;border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--muted)"></pre></details>
+
+          <div class="player-outlook" id="playerOutlook" style="display:none;margin-top:8px;padding:8px;background:rgba(106,160,255,.1);border-left:3px solid var(--accent);border-radius:0 8px 8px 0">
+            <h4 style="margin:0 0 6px 0;color:var(--accent);font-size:16px">Outlook</h4><p id="playerOutlookText" style="margin:0"></p>
           </div>
         </div>
-        <div class="notes-section">
-          <h4>Your Notes <span class="char-count">(<span id="notesCharCount">0</span>/300)</span></h4>
-          <textarea id="playerNotesInput" placeholder="Add your personal notes about this player (300 character limit)..." maxlength="300" rows="4"></textarea>
+
+        <div class="notes-section" style="border-top:1px solid var(--border);padding-top:12px;margin-top:12px">
+          <h4 style="display:flex;align-items:center;justify-content:space-between;margin:0 0 6px 0">Your Notes
+            <span class="legend">(<span id="notesCharCount">0</span>/300)</span>
+          </h4>
+          <textarea id="playerNotesInput" placeholder="Add your personal notes about this player (300 character limit)..." maxlength="300" rows="4" style="width:100%;resize:vertical;min-height:80px;background:#0f1524;color:var(--fg);border:1px solid var(--border);border-radius:10px;padding:10px"></textarea>
         </div>
       </div>
+
       <div class="modal-footer">
         <button class="btn ghost" id="notesModalCancel">Cancel</button>
         <button class="btn primary" id="notesModalSave">Save Notes</button>
@@ -340,651 +268,435 @@
     </div>
   </div>
 
+  <!-- Modal: Rosters -->
+  <div class="modal-backdrop" id="rostersModalBackdrop" aria-hidden="true" style="display:none">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rostersModalTitle">
+      <div class="modal-header">
+        <div class="modal-title" id="rostersModalTitle">League Rosters</div>
+        <button class="modal-close" id="rostersModalClose" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body" id="rostersModalBody" style="max-height:70vh;overflow-y:auto;"></div>
+      <div class="modal-footer">
+        <button class="btn ghost" id="rostersModalCancel">Close</button>
+      </div>
+    </div>
+  </div>
+  <!-- Modal: Assign Team -->
+  <div class="modal-backdrop" id="teamModalBackdrop" aria-hidden="true" style="display:none">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="teamModalTitle">
+      <div class="modal-header">
+        <div class="modal-title" id="teamModalTitle">Assign Team</div>
+        <button class="modal-close" id="teamModalClose" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <label for="teamSelect" class="legend" style="display:block;margin-bottom:8px;">Select destination roster</label>
+        <select id="teamSelect" style="width:100%;min-height:44px;background:#0f1524;color:var(--fg);border:1px solid var(--border);border-radius:10px;padding:10px;font-size:15px;"></select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn ghost" id="teamModalCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
 <script>
-(function(){
-  'use strict';
-  const $ = (sel, root=document) => root.querySelector(sel);
 
-  // ------------------------- Seed / Storage -------------------------
-  const STORAGE_KEY = 'turnerBigBoardSeeds';
+'use strict';
+const $ = (sel, root=document) => root.querySelector(sel);
 
-  function loadSeeds(){
-    try{
-      const raw = sessionStorage.getItem(STORAGE_KEY);
-      if(!raw) return [];
-      const seeds = JSON.parse(raw);
-      return seeds.map(p => ({ ...p, avoid: p.avoid || false }));
-    }catch(e){
-      console.warn('Failed to parse seeds from sessionStorage', e);
-      return [];
+/* ---------- Storage ---------- */
+const STORAGE_KEY = 'turnerBigBoardSeeds';
+function loadSeeds(){ try{ const raw = sessionStorage.getItem(STORAGE_KEY); if(!raw) return []; const seeds = JSON.parse(raw); return seeds.map(p=>({...p, avoid:p.avoid||false})); }catch{ return []; } }
+function saveSeeds(seeds){ sessionStorage.setItem(STORAGE_KEY, JSON.stringify(seeds||[])); }
+function resetSeeds(){ sessionStorage.removeItem(STORAGE_KEY); renderLiveList([]); }
+
+/* ---------- League Teams (from screenshot) ---------- */
+const LEAGUE_TEAMS = [
+  { id:'VAIN', team:'Otown Vainglorious', manager:'Michael Haverty' },
+  { id:'JFT',  team:"Justin's Finest Team", manager:'Justin Jackson' },
+  { id:'GoLD', team:'Go Long Dog', manager:'Jerry Smith' },
+  { id:'JST',  team:"Joshua's Scary Team", manager:'Joshua Bennett' },
+  { id:'GS',   team:'Gus Swayze', manager:'Jeremy Scott' },
+  { id:'SST',  team:"Sterling's Smart Team", manager:'Sterling Ballard' },
+  { id:'PK',   team:'(-_-)', manager:'Paul Kaneshige' },
+  { id:'ETG',  team:'East Tulsa Golfers', manager:'Robert Stage' },
+  { id:'AG',   team:'A Grip', manager:'Aaron Grippando' },
+  { id:'MATT', team:'Like Keanu', manager:'Matt T' }
+];
+
+/* ---------- Pointer Drag & Drop ---------- */
+let dnd = {active:false,list:null,ghost:null,placeholder:null,srcEl:null,srcIndex:-1,pointerOffsetY:0,rafId:0,autoScrollSpeed:0};
+function initPointerDnd(){ dnd.list = $('#liveList'); if(!dnd.list) return; dnd.list.addEventListener('pointerdown', onPointerDown); }
+function onPointerDown(e){
+  const handle = e.target.closest('.drag-handle'); const row = e.target.closest('.row'); if(!handle || !row || !dnd.list.contains(row)) return;
+  e.preventDefault(); row.setPointerCapture?.(e.pointerId);
+  const rect = row.getBoundingClientRect();
+  dnd.active = true; dnd.srcEl = row; dnd.srcIndex = indexOfChild(dnd.list,row); dnd.pointerOffsetY = e.clientY - rect.top;
+  dnd.ghost = document.createElement('div'); dnd.ghost.className='drag-ghost'; dnd.ghost.style.width=rect.width+'px'; dnd.ghost.style.top=(e.clientY)+'px'; dnd.ghost.innerHTML=row.outerHTML; document.body.appendChild(dnd.ghost);
+  dnd.placeholder = document.createElement('div'); dnd.placeholder.className='placeholder'; dnd.placeholder.style.setProperty('--ph-h', rect.height+'px'); dnd.srcEl.after(dnd.placeholder); dnd.srcEl.style.display='none';
+  document.body.classList.add('dragging');
+  window.addEventListener('pointermove', onPointerMove, {passive:false});
+  window.addEventListener('pointerup', onPointerUp, {passive:true});
+  startAutoScrollLoop();
+}
+function onPointerMove(e){
+  if(!dnd.active) return; e.preventDefault();
+  dnd.ghost.style.top = (e.clientY) + 'px';
+  const targetIndex = computeInsertIndex(e.clientY);
+  if(targetIndex !== -1){
+    const currentIndex = indexOfChild(dnd.list,dnd.placeholder);
+    if(targetIndex !== currentIndex){
+      const ref = dnd.list.children[targetIndex];
+      ref ? dnd.list.insertBefore(dnd.placeholder, ref) : dnd.list.appendChild(dnd.placeholder);
     }
   }
-  function saveSeeds(seeds){
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(seeds||[]));
+  maybeSetAutoScroll(e.clientY);
+}
+function onPointerUp(){
+  if(!dnd.active) return;
+  stopAutoScrollLoop();
+  window.removeEventListener('pointermove', onPointerMove);
+  window.removeEventListener('pointerup', onPointerUp);
+  const seeds = loadSeeds();
+  if(seeds.length){
+    const finalIndex = indexOfChild(dnd.list, dnd.placeholder);
+    if(dnd.srcIndex>-1 && finalIndex>-1){
+      const sorted = seeds.slice().sort((a,b)=>a.rk-b.rk);
+      const [moved] = sorted.splice(dnd.srcIndex,1);
+      sorted.splice(finalIndex,0,moved);
+      sorted.forEach((p,i)=> p.rk=i+1);
+      saveSeeds(sorted); renderLiveList(sorted);
+    }
   }
-  function resetSeeds(){
-    sessionStorage.removeItem(STORAGE_KEY);
+  if(dnd.ghost?.parentNode) dnd.ghost.parentNode.removeChild(dnd.ghost);
+  if(dnd.placeholder?.parentNode){ dnd.srcEl.style.display=''; dnd.placeholder.parentNode.removeChild(dnd.placeholder); }
+  document.body.classList.remove('dragging');
+  dnd = {active:false,list:$('#liveList'),ghost:null,placeholder:null,srcEl:null,srcIndex:-1,pointerOffsetY:0,rafId:0,autoScrollSpeed:0};
+}
+function indexOfChild(parent, el){ return Array.prototype.indexOf.call(parent.children, el); }
+function computeInsertIndex(y){ const kids = Array.from(dnd.list.children).filter(n=>n!==dnd.srcEl && n!==dnd.placeholder); for(let i=0;i<kids.length;i++){ const r=kids[i].getBoundingClientRect(); if(y < r.top + r.height/2) return i; } return kids.length; }
+function maybeSetAutoScroll(y){ const r = dnd.list.getBoundingClientRect(), th=48; let s=0; if(y-r.top < th) s = -speed(th-(y-r.top)); else if(r.bottom-y < th) s = speed(th-(r.bottom-y)); dnd.autoScrollSpeed=s; }
+function speed(d){ const k=.35; return Math.min(24, Math.max(2, k*d*2)); }
+function step(){ if(dnd.active && dnd.autoScrollSpeed!==0) dnd.list.scrollTop += dnd.autoScrollSpeed; dnd.rafId=requestAnimationFrame(step); }
+function startAutoScrollLoop(){ stopAutoScrollLoop(); dnd.rafId=requestAnimationFrame(step); }
+function stopAutoScrollLoop(){ if(dnd.rafId) cancelAnimationFrame(dnd.rafId); dnd.rafId=0; }
+
+/* ---------- Schema (display only) ---------- */
+const schema = {"$schema":"https://json-schema.org/draft/2020-12/schema","title":"BigBoardSeeds","type":"array","items":{"type":"object","required":["rk","name","team","pos","ppg","risk","pickMarker","target"],"properties":{"rk":{"type":"integer","minimum":1},"name":{"type":"string","minLength":1},"team":{"type":"string","minLength":2},"pos":{"type":"string","enum":["QB","RB","WR","TE","K","DST","D/ST","DEF"]},"ppg":{"type":["number","null"]},"risk":{"type":"boolean"},"pickMarker":{"type":"string"},"target":{"type":"boolean"},"avoid":{"type":"boolean"},"notes":{"type":"string"}},"additionalProperties":true}};
+$('#jsonSchema').textContent = JSON.stringify(schema, null, 2);
+
+/* ---------- Decorations helpers ---------- */
+const injuryProneStarters = ['Aaron Rodgers','Russell Wilson','Kirk Cousins','Ryan Tannehill','Christian McCaffrey','Saquon Barkley','Jonathan Taylor','Derrick Henry','Nick Chubb','Leonard Fournette','Dalvin Cook','Alvin Kamara','Keenan Allen','Mike Evans','Chris Godwin','Michael Thomas','Tyler Lockett','JuJu Smith-Schuster','Jerry Jeudy','Travis Kelce','Mark Andrews','George Kittle','Kyle Pitts'];
+function isHandcuffPlayer(p, all){ if((p.depthPosition&&p.depthPosition===1)||(p.depthChartInfo&&p.depthChartInfo.rank===1)) return false; const starter = all.find(x=>x.team===p.team && x.pos===p.pos && x.depthChartInfo && x.depthChartInfo.rank===1); if(!starter) return false; return injuryProneStarters.some(n => starter.name.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(starter.name.toLowerCase())); }
+function isRookie(p){ if(!p.depthChartInfo||!p.depthChartInfo.draft) return false; const y=new Date().getFullYear(); const m=p.depthChartInfo.draft.match(/Year:\s*(\d{4})/); return m && parseInt(m[1])===y; }
+function getDepthRankBadge(p){ if(!p.depthChartInfo) return ''; const r=p.depthChartInfo.rank; if(!r||r>3) return '<span class="chip depth-rank rank-backup">BACKUP</span>'; return `<span class="chip depth-rank rank-${r}">D${r}</span>`; }
+function getInjuryIndicator(p){ if(!p.depthChartInfo||!p.depthChartInfo.injuries||!p.depthChartInfo.injuries.length) return ''; return '<i class="bi bi-hospital injury-indicator" title="Has injury history"></i>'; }
+function getRookieBadge(p){ return isRookie(p) ? '<span class="chip rookie-badge">ROOKIE</span>' : ''; }
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+/* ---------- Row rendering ---------- */
+function rowHtml(p, index, all=[]){
+  const flags=[]; if(p.risk || (p.team==='DAL'||p.team==='MIA')) flags.push('<span class="chip flag-red">⚠️</span>');
+  if(p.pickMarker) flags.push(`<span class="chip pick">${p.pickMarker}</span>`);
+  const dr = getDepthRankBadge(p); if(dr) flags.push(dr);
+  const rb = getRookieBadge(p); if(rb) flags.push(rb);
+  const ppg = (p.ppg==null) ? '—' : Number(p.ppg).toFixed(2);
+  const high = (p.ppg!=null && p.ppg>=14) ? ' high-ppg' : '';
+  const hand = isHandcuffPlayer(p, all) ? '<i class="bi bi-link-45deg handcuff-icon" title="Handcuff to injury-prone starter"></i>' : '';
+  const injury = getInjuryIndicator(p);
+  let always=''; if(p.target) always += `<span class="chip" title="Target">⭐</span>`; if(p.avoid) always += `<span class="chip" title="Avoid">🚫</span>`;
+  const assignedClass = p.assignedTeam ? ' assigned' : '';
+  return `<li class="row${high}${assignedClass}" data-index="${index}" data-player-id="${p.rk}">
+    <div class="row-content">
+      <div class="rank">${p.rk}.</div>
+      <div class="name"><span class="player-name">${escapeHtml(p.name)}</span>${injury}${hand} <span class="meta">(${p.pos} - ${p.team})</span> ${always}</div>
+      <div class="meta">${ppg} PPG</div>
+      <div class="chips">${flags.join('')}</div>
+      <div class="drag-handle" title="Hold and drag to reorder">⋮⋮</div>
+    </div>
+  </li>`;
+}
+function renderLiveList(seeds){
+  const list = $('#liveList'); if(!list) return;
+  const sorted = (seeds||[]).slice().sort((a,b)=>a.rk-b.rk);
+  list.innerHTML = sorted.map((p,i)=>rowHtml(p,i,sorted)).join('');
+  // double-click a row to open modal
+  list.onmousedown = null; // ensure clean state for DnD handler binding
+  list.addEventListener('dblclick', (e)=>{
+    const row = e.target.closest('.row'); if(!row) return;
+    const index = parseInt(row.dataset.index,10); if(Number.isInteger(index)) openPlayerNotes(index);
+  });
+  // (re)bind pointer DnD
+  dnd.list?.removeEventListener?.('pointerdown', onPointerDown);
+  initPointerDnd();
+}
+
+/* ---------- Toggle helpers ---------- */
+function toggleTargetAt(index){ const s=loadSeeds(); if(!s[index]) return; s[index].target=!s[index].target; saveSeeds(s); renderLiveList(s); }
+function toggleRiskAt(index){ const s=loadSeeds(); if(!s[index]) return; s[index].risk=!s[index].risk; saveSeeds(s); renderLiveList(s); }
+
+/* ---------- Player Modal ---------- */
+let currentPlayerIndex = -1;
+function openPlayerNotes(index){
+  const seeds = loadSeeds(); if(!seeds[index]) return;
+  currentPlayerIndex = index; const p = seeds[index];
+
+  $('#playerDetailsName').textContent = p.name;
+  $('#playerRank').textContent = p.rk;
+  $('#playerTeam').textContent = p.team;
+  $('#playerPos').textContent = p.pos;
+  $('#playerPPG').textContent = p.ppg==null ? '—' : Number(p.ppg).toFixed(2);
+
+  // depth/injuries
+  populateDepthChartInfo(p); populateInjuriesInfo(p);
+  $('#playerJsonDetails').textContent = JSON.stringify(p, null, 2);
+  if(p.outlook && p.outlook.trim()){ $('#playerOutlook').style.display='block'; $('#playerOutlookText').textContent=p.outlook; } else { $('#playerOutlook').style.display='none'; }
+
+  // notes
+  $('#playerNotesInput').value = p.notes || ''; updateCharCount();
+
+  // toggles UI
+  const targetBtn  = $('#toggleTargetBtn'), warnBtn = $('#toggleWarnBtn');
+  const targetIcon = $('#toggleTargetIcon'), warnIcon = $('#toggleWarnIcon');
+  const setTargetUI = on => { targetBtn.classList.toggle('is-on', !!on); targetIcon.className = on ? 'bi bi-star-fill' : 'bi bi-star'; };
+  const setWarnUI   = on => { warnBtn.classList.toggle('is-on', !!on);   warnIcon.className   = on ? 'bi bi-exclamation-triangle-fill' : 'bi bi-exclamation-triangle'; };
+  setTargetUI(!!p.target); setWarnUI(!!p.risk);
+  targetBtn.onclick = ()=>{ toggleTargetAt(currentPlayerIndex); setTargetUI(loadSeeds()[currentPlayerIndex].target); };
+  warnBtn.onclick   = ()=>{ toggleRiskAt(currentPlayerIndex);   setWarnUI(loadSeeds()[currentPlayerIndex].risk);   };
+
+  // open modal + start at top
+  const modal = $('#notesModalBackdrop'); modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+  $('#notesModalBody').scrollTop = 0;
+
+  // double-click body -> assign team modal
+  $('#notesModalBody').ondblclick = () => openTeamModal(currentPlayerIndex);
+}
+function populateDepthChartInfo(player){
+  const section = $('#depthChartSection'); if(player.depthChartInfo){ const d=player.depthChartInfo;
+    section.style.display='block';
+    $('#depthRank').textContent = (d.rank ? `Depth #${d.rank}` : '—');
+    $('#depthTeam').textContent = d.team || 'Unknown';
+    $('#depthDraft').textContent = d.draft || 'Unknown';
+    $('#depthStatus').textContent = d.status || 'Unknown';
+  } else { section.style.display='none'; }
+}
+function populateInjuriesInfo(player){
+  const sec = $('#injuriesSection'), list = $('#injuriesList');
+  if(player.depthChartInfo && player.depthChartInfo.injuries && player.depthChartInfo.injuries.length){
+    sec.style.display='block'; list.innerHTML='';
+    player.depthChartInfo.injuries.forEach(inj=>{
+      const el=document.createElement('div'); el.style.margin='6px 0'; el.style.padding='6px'; el.style.background='rgba(0,0,0,.3)'; el.style.borderRadius='6px';
+      const date = inj.date ? new Date(inj.date).toLocaleDateString() : '';
+      el.innerHTML = `<div style="font-weight:bold;color:var(--danger)">${escapeHtml(inj.status||'Unknown')}</div>
+                      <div style="color:var(--muted)">${escapeHtml(inj.shortComment||'No details')}</div>
+                      ${date?`<div class="legend">Updated: ${date}</div>`:''}`;
+      list.appendChild(el);
+    });
+  }else{ sec.style.display='none'; }
+}
+function closePlayerNotesModal(){ const m=$('#notesModalBackdrop'); m.style.display='none'; m.setAttribute('aria-hidden','true'); document.body.style.overflow=''; currentPlayerIndex=-1; }
+function savePlayerNotes(){ if(currentPlayerIndex===-1) return; const s=loadSeeds(); if(!s[currentPlayerIndex]) return; s[currentPlayerIndex].notes = $('#playerNotesInput').value.trim(); saveSeeds(s); renderLiveList(s); closePlayerNotesModal(); }
+function updateCharCount(){ const n=$('#playerNotesInput').value.length; $('#notesCharCount').textContent=n; }
+
+/* Close handlers */
+$('#notesModalClose').addEventListener('click', closePlayerNotesModal);
+$('#notesModalCancel').addEventListener('click', closePlayerNotesModal);
+$('#notesModalSave').addEventListener('click', savePlayerNotes);
+$('#notesModalBackdrop').addEventListener('click', (e)=>{ if(e.target === $('#notesModalBackdrop')) closePlayerNotesModal(); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && $('#notesModalBackdrop').style.display==='flex') closePlayerNotesModal(); });
+
+/* ---------- Assign Team Modal ---------- */
+function openTeamModal(index){
+  const teamModal = $('#teamModalBackdrop');
+  const sel = $('#teamSelect');
+  sel.innerHTML = `<option value="" selected>Assign a team...</option>` +
+    LEAGUE_TEAMS.map(t => `<option value="${t.id}">${t.id} — ${escapeHtml(t.team)} (${escapeHtml(t.manager)})</option>`).join('');
+  const cur = loadSeeds()[index]?.assignedTeam || '';
+  if(cur) sel.value = cur;
+
+  teamModal.style.display='flex'; teamModal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+  sel.focus();
+
+  sel.onchange = () => {
+    const val = sel.value;
+    const seeds = loadSeeds();
+    const player = seeds[index];
+    player.assignedTeam = val || null;
+    saveSeeds(seeds);
+    closeTeamModal();
+    renderLiveList(seeds);
+  };
+
+  $('#teamModalClose').onclick = closeTeamModal;
+  $('#teamModalCancel').onclick = closeTeamModal;
+  $('#teamModalBackdrop').onclick = (e)=>{ if(e.target === $('#teamModalBackdrop')) closeTeamModal(); };
+}
+function closeTeamModal(){ const m=$('#teamModalBackdrop'); m.style.display='none'; m.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+
+/* ---------- Import/Print/Reset ---------- */
+function validateAgainstSchema(arr){ const errors=[]; if(!Array.isArray(arr)) return ["Root must be an array of player objects."]; if(arr.length===0) return []; const posSet=new Set(["QB","RB","WR","TE","K","DST","D/ST","DEF"]); arr.forEach((o,idx)=>{ const req=["rk","name","team","pos","ppg","risk","pickMarker","target"]; req.forEach(k=>{ if(!(k in o)) errors.push(`item[${idx}]: missing '${k}'`); }); if(typeof o.rk!=='number'||!Number.isInteger(o.rk)||o.rk<1) errors.push(`item[${idx}]: rk invalid`); if(typeof o.name!=='string'||!o.name.trim()) errors.push(`item[${idx}]: name invalid`); if(typeof o.team!=='string'||o.team.length<2) errors.push(`item[${idx}]: team invalid`); if(typeof o.pos!=='string'||!posSet.has(o.pos)) errors.push(`item[${idx}]: pos invalid`); if(!(o.ppg===null||typeof o.ppg==='number')) errors.push(`item[${idx}]: ppg invalid`); if(typeof o.risk!=='boolean') errors.push(`item[${idx}]: risk invalid`); if(typeof o.pickMarker!=='string') errors.push(`item[${idx}]: pickMarker invalid`); if(typeof o.target!=='boolean') errors.push(`item[${idx}]: target invalid`); if('avoid' in o && typeof o.avoid!=='boolean') errors.push(`item[${idx}]: avoid invalid`); }); return errors; }
+
+const backdrop = $('#modalBackdrop');
+function openModal(){ backdrop.style.display='flex'; showStep(1); clearPreview(); document.body.style.overflow='hidden'; }
+function closeModal(){ backdrop.style.display='none'; document.body.style.overflow=''; }
+function showStep(n){ $('#step1').style.display=(n===1?'block':'none'); $('#step2').style.display=(n===2?'block':'none'); $('#btnBack').style.display=(n===2?'inline-block':'none'); $('#btnContinue').style.display=(n===2?'inline-block':'none'); }
+function clearPreview(){ $('#previewTable tbody').innerHTML=''; $('#validateMsg').textContent=''; }
+
+$('#btnUpload').addEventListener('click', openModal);
+$('#modalClose').addEventListener('click', closeModal);
+$('#btnBack').addEventListener('click', ()=>showStep(1));
+$('#btnLoadUrl').addEventListener('click', async ()=>{
+  const url = $('#importUrl').value.trim(); if(!url){ alert('Please enter a URL.'); return; }
+  try{ const res = await fetch(url); if(!res.ok) throw new Error(`HTTP ${res.status}`); const json = await res.json(); handleImportedJson(json); }
+  catch(err){ alert('Failed to load URL: '+err.message); }
+});
+$('#importFile').addEventListener('change', async (ev)=>{
+  const file=ev.target.files[0]; if(!file) return;
+  try{ const text = await file.text(); const json = JSON.parse(text); handleImportedJson(json); }
+  catch(err){ alert('File read/parse error: '+err.message); }
+});
+function handleImportedJson(json){
+  const errors = validateAgainstSchema(json); const tbody=$('#previewTable tbody'); clearPreview();
+  if(errors.length){ $('#validateMsg').innerHTML = '<span style="color:var(--danger)">Schema validation failed:</span><br>'+errors.map(e=>`• ${escapeHtml(e)}`).join('<br>'); return; }
+  json.slice(0,20).forEach(p=>{ const tr=document.createElement('tr'); tr.innerHTML = `<td>${p.rk}</td><td>${escapeHtml(p.name)}</td><td>${p.team}</td><td>${p.pos}</td><td>${p.ppg ?? '—'}</td><td>${p.risk}</td><td>${escapeHtml(p.pickMarker||'')}</td><td>${p.target}</td><td>${p.avoid || false}</td>`; tbody.appendChild(tr); });
+  showStep(2);
+  $('#btnContinue').onclick = ()=>{ const processed=json.map(p=>({...p, avoid:p.avoid||false, notes:p.notes||'' })); sessionStorage.removeItem(STORAGE_KEY); saveSeeds(processed); renderLiveList(processed); closeModal(); };
+};
+
+$('#btnReset').addEventListener('click', ()=>{ if(confirm('Reset board and clear session storage?')){ resetSeeds(); sessionStorage.removeItem(STORAGE_KEY); alert('Board reset.'); }});
+$('#btnPrint').addEventListener('click', ()=>{ const seeds=loadSeeds(); buildPrint(seeds); window.print(); });
+window.addEventListener('beforeprint', ()=>{ const seeds=loadSeeds(); buildPrint(seeds); });
+
+function buildPrint(seeds){
+  const data=(seeds||[]).slice().sort((a,b)=>a.rk-b.rk); const groups=[];
+  for(let i=0;i<4;i++){ const start=i*50,end=start+50; const g=data.slice(start,end); if(g.length>0||i===0) groups.push({players:g,title:`Ranks ${start+1}-${Math.min(end,data.length)}`}); }
+  $('#printGrid').innerHTML = groups.map(g => `<div class="print-col"><div class="print-col-header">${g.title}</div><ul class="list">${g.players.map((p,i)=>rowHtml(p,i)).join('')}</ul></div>`).join('');
+  $('#printDate').textContent = new Date().toLocaleString();
+}
+
+/* ---------- Auto-load initial data ---------- */
+async function autoLoadInitialData(){
+  const githubUrl='https://raw.githubusercontent.com/turnerturn/fantasy-football-draft-buddy/refs/heads/main/seeds.json';
+  $('#importUrl').value = githubUrl;
+  const existing = loadSeeds(); if(existing && existing.length){ renderLiveList(existing); return; }
+  try{
+    const res=await fetch(githubUrl); if(!res.ok) throw new Error('fetch'); const json=await res.json();
+    const processed=json.map(p=>({...p, avoid:p.avoid||false, notes:p.notes||'' })); saveSeeds(processed); renderLiveList(processed);
+  }catch{
+    try{ const local=await fetch('./seeds.json'); if(local.ok){ const j=await local.json(); const processed=j.map(p=>({...p, avoid:p.avoid||false, notes:p.notes||'' })); saveSeeds(processed); renderLiveList(processed); return; } }catch{}
     renderLiveList([]);
   }
+}
 
-  // ------------------------- Pointer-based Drag & Drop -------------------------
-  let dnd = {
-    active:false,
-    list:null,
-    ghost:null,
-    placeholder:null,
-    srcEl:null,
-    srcIndex:-1,
-    pointerOffsetY:0,
-    rafId:0,
-    autoScrollSpeed:0,
-  };
+/* ---------- Init ---------- */
+autoLoadInitialData();
+initPointerDnd();
 
-  function initPointerDnd(){
-    dnd.list = $('#liveList');
-    if(!dnd.list) return;
+// --- Rosters Modal Logic ---
+const ROSTER_SLOTS = [
+  'QB','RB','WR','WR','TE','FLEX','FLEX','FLEX','D/ST','K',
+];
+const BENCH_SLOTS = Array(6).fill('Bench');
 
-    dnd.list.addEventListener('pointerdown', onPointerDown);
-  }
+function getTeamPlayers(teamId, seeds) {
+  return seeds.filter(p => p.assignedTeam === teamId);
+}
 
-  function onPointerDown(e){
-    const handle = e.target.closest('.drag-handle');
-    const row = e.target.closest('.row');
-    if(!handle || !row || !dnd.list.contains(row)) return;
-
-    // Start drag
-    e.preventDefault();
-    row.setPointerCapture?.(e.pointerId);
-
-    const rect = row.getBoundingClientRect();
-    dnd.active = true;
-    dnd.srcEl = row;
-    dnd.srcIndex = indexOfChild(dnd.list, row);
-    dnd.pointerOffsetY = e.clientY - rect.top;
-
-    // Ghost: clone visuals (lightweight)
-    dnd.ghost = document.createElement('div');
-    dnd.ghost.className = 'drag-ghost';
-    dnd.ghost.style.width = rect.width + 'px';
-    dnd.ghost.style.top = (e.clientY) + 'px';
-    dnd.ghost.innerHTML = row.outerHTML; // visual clone
-    document.body.appendChild(dnd.ghost);
-
-    // Placeholder
-    dnd.placeholder = document.createElement('div');
-    dnd.placeholder.className = 'placeholder';
-    dnd.placeholder.style.setProperty('--ph-h', rect.height + 'px');
-    dnd.srcEl.after(dnd.placeholder);
-    dnd.srcEl.style.display = 'none';
-
-    document.body.classList.add('dragging');
-
-    window.addEventListener('pointermove', onPointerMove, { passive:false });
-    window.addEventListener('pointerup', onPointerUp, { passive:true });
-    startAutoScrollLoop();
-  }
-
-  function onPointerMove(e){
-    if(!dnd.active) return;
-    e.preventDefault();
-
-    // Move ghost with pointer (centered on initial grab offset)
-    const top = e.clientY - dnd.pointerOffsetY + (dnd.pointerOffsetY);
-    dnd.ghost.style.top = top + 'px';
-
-    // Determine new index based on pointer Y
-    const targetIndex = computeInsertIndex(e.clientY);
-    if(targetIndex !== -1){
-      const currentIndex = indexOfChild(dnd.list, dnd.placeholder);
-      if(targetIndex !== currentIndex){
-        const refNode = dnd.list.children[targetIndex];
-        if(refNode){
-          dnd.list.insertBefore(dnd.placeholder, refNode);
-        }else{
-          dnd.list.appendChild(dnd.placeholder);
-        }
-      }
+function getRosterByTeam(teamId, seeds) {
+  // Returns {starters:[], bench:[]} for a team
+  const players = getTeamPlayers(teamId, seeds).slice();
+  // Sort by assigned slot order, fallback to rank
+  const starters = [];
+  const bench = [];
+  // Assign slots by position, then fill flex, then bench
+  const used = new Set();
+  for (const slot of ROSTER_SLOTS) {
+    let found = null;
+    if (slot === 'FLEX') {
+      found = players.find(p => !used.has(p.rk) && ['RB','WR','TE'].includes(p.pos));
+    } else {
+      found = players.find(p => !used.has(p.rk) && p.pos === slot);
     }
-
-    // Edge detection for auto-scroll
-    maybeSetAutoScroll(e.clientY);
+    if (found) { starters.push(found); used.add(found.rk); }
+    else { starters.push(null); }
   }
+  // Remaining go to bench
+  players.forEach(p => { if (!used.has(p.rk)) bench.push(p); });
+  // Fill empty bench slots
+  while (bench.length < BENCH_SLOTS.length) bench.push(null);
+  return {starters, bench};
+}
 
-  function onPointerUp(){
-    if(!dnd.active) return;
-
-    stopAutoScrollLoop();
-    window.removeEventListener('pointermove', onPointerMove);
-    window.removeEventListener('pointerup', onPointerUp);
-
-    // Finalize order
-    const seeds = loadSeeds();
-    if(seeds.length){
-      const finalIndex = indexOfChild(dnd.list, dnd.placeholder);
-      if(dnd.srcIndex > -1 && finalIndex > -1){
-        const sorted = seeds.slice().sort((a,b)=>a.rk-b.rk);
-        const [moved] = sorted.splice(dnd.srcIndex, 1);
-        sorted.splice(finalIndex, 0, moved);
-        // Re-rank
-        sorted.forEach((p,i)=> p.rk = i+1);
-        saveSeeds(sorted);
-        renderLiveList(sorted);
-      }
-    }
-
-    // Cleanup visuals
-    if(dnd.ghost && dnd.ghost.parentNode) dnd.ghost.parentNode.removeChild(dnd.ghost);
-    if(dnd.placeholder && dnd.placeholder.parentNode){
-      // Show source again before removing placeholder so layout doesn't jump
-      dnd.srcEl.style.display = '';
-      dnd.placeholder.parentNode.removeChild(dnd.placeholder);
-    }
-    document.body.classList.remove('dragging');
-
-    // Reset state
-    dnd.active=false; dnd.ghost=null; dnd.placeholder=null; dnd.srcEl=null;
-    dnd.srcIndex=-1; dnd.pointerOffsetY=0; dnd.autoScrollSpeed=0;
-  }
-
-  function indexOfChild(parent, el){
-    return Array.prototype.indexOf.call(parent.children, el);
-  }
-
-  function computeInsertIndex(pointerY){
-    const children = Array.from(dnd.list.children).filter(n => n !== dnd.srcEl && n !== dnd.placeholder);
-    for(let i=0;i<children.length;i++){
-      const r = children[i].getBoundingClientRect();
-      const midpoint = r.top + r.height/2;
-      if(pointerY < midpoint) return i;
-    }
-    return children.length;
-  }
-
-  // --------- Auto-scroll near edges (rAF loop) ----------
-  function maybeSetAutoScroll(pointerY){
-    const rect = dnd.list.getBoundingClientRect();
-    const topDist = pointerY - rect.top;
-    const botDist = rect.bottom - pointerY;
-    const threshold = 48; // px
-
-    let speed = 0;
-    if(topDist < threshold){
-      speed = -scaleSpeed(threshold - topDist);
-    }else if(botDist < threshold){
-      speed = scaleSpeed(threshold - botDist);
-    }
-    dnd.autoScrollSpeed = speed;
-  }
-
-  function scaleSpeed(delta){ // delta ∈ [0..threshold]
-    // 2..24 px/frame depending on closeness
-    const k = 0.35;
-    const px = Math.min(24, Math.max(2, k * delta * 2));
-    return px;
-  }
-
-  function autoScrollStep(){
-    if(!dnd.active) return;
-    if(dnd.autoScrollSpeed !== 0){
-      dnd.list.scrollTop += dnd.autoScrollSpeed;
-    }
-    dnd.rafId = requestAnimationFrame(autoScrollStep);
-  }
-
-  function startAutoScrollLoop(){
-    stopAutoScrollLoop();
-    dnd.rafId = requestAnimationFrame(autoScrollStep);
-  }
-  function stopAutoScrollLoop(){
-    if(dnd.rafId) cancelAnimationFrame(dnd.rafId);
-    dnd.rafId = 0;
-  }
-
-  // ------------------------- JSON Schema (unchanged) -------------------------
-  const schema = {
-    "$schema":"https://json-schema.org/draft/2020-12/schema",
-    "title":"BigBoardSeeds",
-    "type":"array",
-    "items":{
-      "type":"object",
-      "required":["rk","name","team","pos","ppg","risk","pickMarker","target"],
-      "properties":{
-        "rk":{"type":"integer","minimum":1},
-        "name":{"type":"string","minLength":1},
-        "team":{"type":"string","minLength":2},
-        "pos":{"type":"string","enum":["QB","RB","WR","TE","K","DST","D/ST","DEF"]},
-        "ppg":{"type":["number","null"]},
-        "risk":{"type":"boolean"},
-        "pickMarker":{"type":"string"},
-        "target":{"type":"boolean"},
-        "avoid":{"type":"boolean"},
-        "notes":{"type":"string"}
-      },
-      "additionalProperties":true
-    }
-  };
-  $('#jsonSchema').textContent = JSON.stringify(schema, null, 2);
-
-  function validateAgainstSchema(arr){
-    const errors=[];
-    if(!Array.isArray(arr)) return ["Root must be an array of player objects."];
-    if (arr.length === 0) return [];
-    arr.forEach((o,idx)=>{
-      const path = `item[${idx}]`;
-      const req=["rk","name","team","pos","ppg","risk","pickMarker","target"];
-      req.forEach(k=>{ if(!(k in o)) errors.push(`${path}: missing required '${k}'`); });
-      if(typeof o.rk !== 'number' || !Number.isInteger(o.rk) || o.rk<1) errors.push(`${path}: rk must be integer >=1`);
-      if(typeof o.name !== 'string' || !o.name.trim()) errors.push(`${path}: name must be non-empty string`);
-      if(typeof o.team !== 'string' || o.team.length<2) errors.push(`${path}: team must be string`);
-      const posSet = new Set(["QB","RB","WR","TE","K","DST","D/ST","DEF"]);
-      if(typeof o.pos !== 'string' || !posSet.has(o.pos)) errors.push(`${path}: pos must be one of QB,RB,WR,TE,K,DST,D/ST,DEF`);
-      if(!(o.ppg===null || typeof o.ppg==='number')) errors.push(`${path}: ppg must be number or null`);
-      if(typeof o.risk!=='boolean') errors.push(`${path}: risk must be boolean`);
-      if(typeof o.pickMarker!=='string') errors.push(`${path}: pickMarker must be string`);
-      if(typeof o.target!=='boolean') errors.push(`${path}: target must be boolean`);
-      if('avoid' in o && typeof o.avoid!=='boolean') errors.push(`${path}: avoid must be boolean if present`);
-    });
-    const criticalErrors = errors.filter(e =>
-      e.includes('missing required') ||
-      e.includes('must be integer') ||
-      e.includes('must be non-empty string') ||
-      e.includes('must be boolean')
-    );
-    return criticalErrors;
-  }
-
-  // ------------------------- Indicators / rendering helpers -------------------------
-  const injuryProneStarters = [
-    'Aaron Rodgers','Russell Wilson','Kirk Cousins','Ryan Tannehill',
-    'Christian McCaffrey','Saquon Barkley','Jonathan Taylor','Derrick Henry',
-    'Nick Chubb','Leonard Fournette','Dalvin Cook','Alvin Kamara',
-    'Keenan Allen','Mike Evans','Chris Godwin','Michael Thomas',
-    'Tyler Lockett','JuJu Smith-Schuster','Jerry Jeudy',
-    'Travis Kelce','Mark Andrews','George Kittle','Kyle Pitts'
-  ];
-
-  function isHandcuffPlayer(player, all){
-    if ((player.depthPosition && player.depthPosition === 1) || (player.depthChartInfo && player.depthChartInfo.rank === 1)) return false;
-    const starter = all.find(p => p.team===player.team && p.pos===player.pos && p.depthChartInfo && p.depthChartInfo.rank===1);
-    if(!starter) return false;
-    return injuryProneStarters.some(name =>
-      starter.name.toLowerCase().includes(name.toLowerCase()) ||
-      name.toLowerCase().includes(starter.name.toLowerCase())
-    );
-  }
-  function isRookie(player){
-    if(!player.depthChartInfo || !player.depthChartInfo.draft) return false;
-    const y = new Date().getFullYear();
-    const m = player.depthChartInfo.draft.match(/Year:\s*(\d{4})/);
-    return m && parseInt(m[1]) === y;
-  }
-  function getDepthRankBadge(player){
-    if(!player.depthChartInfo) return '';
-    const r = player.depthChartInfo.rank;
-    if(!r || r>3) return '<span class="chip depth-rank rank-backup">BACKUP</span>';
-    return `<span class="chip depth-rank rank-${r}">D${r}</span>`;
-  }
-  function getInjuryIndicator(player){
-    if (!player.depthChartInfo || !player.depthChartInfo.injuries || player.depthChartInfo.injuries.length===0) return '';
-    return '<i class="bi bi-hospital injury-indicator" title="Has injury history"></i>';
-  }
-  function getRookieBadge(player){ return isRookie(player) ? '<span class="chip rookie-badge">ROOKIE</span>' : ''; }
-
-  function rowHtml(p, index, all=[]){
-    const flags=[];
-    const teamRisk = (p.team==='DAL' || p.team==='MIA');
-    if (p.risk || teamRisk) flags.push('<span class="chip flag-red">⚠️</span>');
-    if (p.pickMarker) flags.push(`<span class="chip pick">${p.pickMarker}</span>`);
-    const depthRankBadge = getDepthRankBadge(p); if (depthRankBadge) flags.push(depthRankBadge);
-    const rookieBadge = getRookieBadge(p); if (rookieBadge) flags.push(rookieBadge);
-    const ppg = (p.ppg===null || p.ppg===undefined) ? '—' : Number(p.ppg).toFixed(2);
-    const highPpg = (p.ppg !== null && p.ppg !== undefined && p.ppg >= 14);
-    const highPpgClass = highPpg ? ' high-ppg' : '';
-    const isHandcuff = isHandcuffPlayer(p, all);
-    const handcuffIcon = isHandcuff ? '<i class="bi bi-link-45deg handcuff-icon" title="Handcuff to injury-prone starter"></i>' : '';
-    const playerName = `<span class="player-name" data-action="openNotes" data-index="${index}" title="Click to view player details" style="cursor:pointer;">${escapeHtml(p.name)}</span>`;
-    const injuryIndicator = getInjuryIndicator(p);
-    let alwaysIcons = '';
-    if (p.target) alwaysIcons += `<span class="chip flag-blue" title="Target">⭐</span>`;
-    if (p.avoid) alwaysIcons += `<span class="chip flag-grey" title="Avoid">🚫</span>`;
-
-    return `<li class="row${highPpgClass}" data-index="${index}" data-player-id="${p.rk}">
-      <div class="row-content">
-        <div class="rank">${p.rk}.</div>
-        <div class="name">${playerName}${injuryIndicator}${handcuffIcon} <span class="meta">(${p.pos} - ${p.team})</span> ${alwaysIcons}</div>
-        <div class="meta">${ppg} PPG</div>
-        <div class="chips">${flags.join('')}</div>
-        <div class="drag-handle" title="Hold and drag to reorder">⋮⋮</div>
+function renderRostersModal() {
+  const seeds = loadSeeds();
+  const body = $('#rostersModalBody');
+  body.innerHTML = LEAGUE_TEAMS.map(team => {
+    const {starters, bench} = getRosterByTeam(team.id, seeds);
+    return `
+      <div class="roster-summary" style="margin-bottom:32px;">
+        <div style="font-weight:bold;font-size:16px;margin-bottom:6px;">${team.id} — ${escapeHtml(team.team)} <span style="color:var(--muted);font-size:13px;">(${escapeHtml(team.manager)})</span></div>
+        <table style="width:100%;border-collapse:collapse;background:var(--card);border-radius:8px;overflow:hidden;">
+          <thead><tr style="background:var(--chip);color:var(--muted);font-size:13px;"><th style="width:60px;padding:6px 4px;">SLOT</th><th style="padding:6px 4px;">PLAYER</th></tr></thead>
+          <tbody>
+            ${ROSTER_SLOTS.map((slot, i) => {
+              const p = starters[i];
+              return `<tr style="border-bottom:1px solid var(--border);">
+                <td style="font-weight:600;padding:8px 4px;">${slot}</td>
+                <td style="padding:8px 4px;display:flex;align-items:center;gap:8px;">
+                  ${p ? `<img src="https://cdn.jsdelivr.net/gh/turnerturn/fantasy-football-draft-buddy@main/avatar-placeholder.png" alt="avatar" style="width:32px;height:32px;opacity:.25;border-radius:50%;background:#fff;"> <span style="flex:1;">${escapeHtml(p.name)}</span> <button class="btn-trash" data-team="${team.id}" data-rk="${p.rk}" title="Remove player" style="background:none;border:none;color:var(--danger);font-size:18px;cursor:pointer;"><i class="bi bi-trash"></i></button>` : `<img src="https://cdn.jsdelivr.net/gh/turnerturn/fantasy-football-draft-buddy@main/avatar-placeholder.png" alt="avatar" style="width:32px;height:32px;opacity:.25;border-radius:50%;background:#fff;"> <span style="flex:1;color:var(--muted);">Empty</span>`}
+                </td>
+              </tr>`;
+            }).join('')}
+            <tr><td colspan="2" style="background:var(--chip);height:8px;"></td></tr>
+            ${BENCH_SLOTS.map((slot, i) => {
+              const p = bench[i];
+              return `<tr style="border-bottom:1px solid var(--border);">
+                <td style="font-weight:600;padding:8px 4px;">${slot}</td>
+                <td style="padding:8px 4px;display:flex;align-items:center;gap:8px;">
+                  ${p ? `<img src="https://cdn.jsdelivr.net/gh/turnerturn/fantasy-football-draft-buddy@main/avatar-placeholder.png" alt="avatar" style="width:32px;height:32px;opacity:.25;border-radius:50%;background:#fff;"> <span style="flex:1;">${escapeHtml(p.name)}</span> <button class="btn-trash" data-team="${team.id}" data-rk="${p.rk}" title="Remove player" style="background:none;border:none;color:var(--danger);font-size:18px;cursor:pointer;"><i class="bi bi-trash"></i></button>` : `<img src="https://cdn.jsdelivr.net/gh/turnerturn/fantasy-football-draft-buddy@main/avatar-placeholder.png" alt="avatar" style="width:32px;height:32px;opacity:.25;border-radius:50%;background:#fff;"> <span style="flex:1;color:var(--muted);">Empty</span>`}
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
       </div>
-    </li>`;
-  }
-
-  function renderLiveList(seeds){
-    const list = $('#liveList');
-    if(!list) return;
-    const sorted = (seeds||[]).slice().sort((a,b)=>a.rk-b.rk);
-    list.innerHTML = sorted.map((p, i) => rowHtml(p, i, sorted)).join('');
-
-    // Bind click actions (target/avoid/notes)
-    list.removeEventListener('click', handleListClick);
-    list.addEventListener('click', handleListClick);
-
-    // Re-bind pointer DnD
-    dnd.list?.removeEventListener('pointerdown', onPointerDown);
-    initPointerDnd();
-  }
-
-  function handleListClick(e){
-    const action = e.target.getAttribute('data-action');
-    const index = parseInt(e.target.getAttribute('data-index'));
-    if (!action || Number.isNaN(index)) return;
-
-    e.preventDefault(); e.stopPropagation();
-    switch(action){
-      case 'toggleTarget': toggleTarget(index); break;
-      case 'toggleAvoid': toggleAvoid(index); break;
-      case 'openNotes': openPlayerNotes(index); break;
-    }
-  }
-
-  // ------------------------- Toggle functions -------------------------
-  function toggleTarget(index){
-    const seeds = loadSeeds();
-    if(seeds[index]){
-      seeds[index].target = !seeds[index].target;
-      saveSeeds(seeds); renderLiveList(seeds);
-    }
-  }
-  function toggleAvoid(index){
-    const seeds = loadSeeds();
-    if(seeds[index]){
-      if(!('avoid' in seeds[index])) seeds[index].avoid = false;
-      seeds[index].avoid = !seeds[index].avoid;
-      saveSeeds(seeds); renderLiveList(seeds);
-    }
-  }
-
-  // ------------------------- Player Notes Modal (unchanged) -------------------------
-  let currentPlayerIndex = -1;
-  function openPlayerNotes(index){
-    const seeds = loadSeeds();
-    if(!seeds[index]) return;
-    currentPlayerIndex = index;
-    const player = seeds[index];
-    $('#playerDetailsName').textContent = player.name;
-    $('#playerRank').textContent = player.rk;
-    $('#playerTeam').textContent = player.team;
-    $('#playerPos').textContent = player.pos;
-    $('#playerPPG').textContent = player.ppg === null ? '—' : player.ppg.toFixed(2);
-    populateDepthChartInfo(player);
-    populateInjuriesInfo(player);
-    $('#playerJsonDetails').textContent = JSON.stringify(player, null, 2);
-    if(player.outlook && player.outlook.trim()){ $('#playerOutlook').style.display='block'; $('#playerOutlookText').textContent = player.outlook; } else { $('#playerOutlook').style.display='none'; }
-    $('#playerNotesInput').value = player.notes || '';
-    updateCharCount();
-    const notesModal = $('#notesModalBackdrop');
-    notesModal.style.display = 'flex';
-    notesModal.setAttribute('aria-hidden','false');
-    document.body.style.overflow = 'hidden';
-    setTimeout(()=>$('#playerNotesInput').focus(),100);
-  }
-  function populateDepthChartInfo(player){
-    const depthSection = $('#depthChartSection');
-    if(player.depthChartInfo){
-      const depth = player.depthChartInfo;
-      depthSection.style.display='block';
-      const rankElement = $('#depthRank');
-      rankElement.textContent = getRankText(depth.rank);
-      rankElement.className = `depth-rank-badge depth-rank-${depth.rank}`;
-      $('#depthTeam').textContent = depth.team || 'Unknown';
-      $('#depthDraft').textContent = depth.draft || 'Unknown';
-      const statusElement = $('#depthStatus');
-      statusElement.textContent = depth.status || 'Unknown';
-      statusElement.className = `status-badge ${getStatusClass(depth.status)}`;
-    }else{
-      depthSection.style.display='none';
-    }
-  }
-  function populateInjuriesInfo(player){
-    const injuriesSection = $('#injuriesSection');
-    const list = $('#injuriesList');
-    if (player.depthChartInfo && player.depthChartInfo.injuries && player.depthChartInfo.injuries.length){
-      injuriesSection.style.display='block';
-      list.innerHTML='';
-      player.depthChartInfo.injuries.forEach(injury=>{
-        const d = document.createElement('div');
-        d.className='injury-item';
-        const status = injury.status || 'Unknown';
-        const shortComment = injury.shortComment || 'No details available';
-        const date = injury.date ? new Date(injury.date).toLocaleDateString() : '';
-        d.innerHTML = `
-          <div class="injury-status">${escapeHtml(status)}</div>
-          <div class="injury-comment">${escapeHtml(shortComment)}</div>
-          ${date ? `<div class="injury-date">Updated: ${date}</div>` : ''}`;
-        list.appendChild(d);
-      });
-    }else{
-      injuriesSection.style.display='none';
-    }
-  }
-  function getRankText(rank){ switch(rank){ case 1:return'Starter (#1)'; case 2:return'Backup (#2)'; case 3:return'Third String (#3)'; default:return`Depth #${rank}`; } }
-  function getStatusClass(status){
-    if(!status) return '';
-    const s = status.toLowerCase();
-    if(s==='active') return 'status-active';
-    if(s==='injured'||s==='ir') return 'status-injured';
-    if(s==='questionable'||s==='doubtful') return 'status-questionable';
-    return '';
-  }
-  function closePlayerNotesModal(){
-    const notesModal = $('#notesModalBackdrop');
-    notesModal.style.display='none';
-    notesModal.setAttribute('aria-hidden','true');
-    document.body.style.overflow='';
-    currentPlayerIndex=-1;
-  }
-  function savePlayerNotes(){
-    if(currentPlayerIndex===-1) return;
-    const seeds = loadSeeds();
-    if(!seeds[currentPlayerIndex]) return;
-    const notes = $('#playerNotesInput').value.trim();
-    seeds[currentPlayerIndex].notes = notes;
-    saveSeeds(seeds); renderLiveList(seeds); closePlayerNotesModal();
-  }
-  function updateCharCount(){
-    const input = $('#playerNotesInput');
-    const n = input.value.length;
-    $('#notesCharCount').textContent = n;
-    const el = $('#notesCharCount');
-    if(n>270) el.style.color='var(--danger)';
-    else if(n>240) el.style.color='var(--warn)';
-    else el.style.color='var(--muted)';
-  }
-
-  $('#notesModalClose').addEventListener('click', closePlayerNotesModal);
-  $('#notesModalCancel').addEventListener('click', closePlayerNotesModal);
-  $('#notesModalSave').addEventListener('click', savePlayerNotes);
-  $('#playerNotesInput').addEventListener('input', updateCharCount);
-  $('#notesModalBackdrop').addEventListener('click', (e)=>{ if(e.target === $('#notesModalBackdrop')) closePlayerNotesModal(); });
-  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && $('#notesModalBackdrop').style.display==='flex') closePlayerNotesModal(); });
-
-  // ------------------------- Print build -------------------------
-  function buildPrint(seeds){
-    const data = (seeds||[]).slice().sort((a,b)=>a.rk-b.rk);
-    const groups = [];
-    for(let i=0;i<4;i++){
-      const start = i*50, end = start+50;
-      const group = data.slice(start,end);
-      if(group.length>0 || i===0){
-        groups.push({ players:group, title:`Ranks ${start+1}-${Math.min(end, data.length)}`});
+    `;
+  }).join('');
+  // Add event listeners for trash buttons
+  body.querySelectorAll('.btn-trash').forEach(btn => {
+    btn.onclick = (e) => {
+      const teamId = btn.getAttribute('data-team');
+      const rk = parseInt(btn.getAttribute('data-rk'), 10);
+      if (!teamId || !rk) return;
+      const seeds = loadSeeds();
+      const player = seeds.find(p => p.rk === rk && p.assignedTeam === teamId);
+      if (player) {
+        player.assignedTeam = null;
+        saveSeeds(seeds);
+        renderLiveList(seeds);
+        renderRostersModal();
       }
-    }
-    const grid = $('#printGrid');
-    grid.innerHTML = groups.map(g =>
-      `<div class="print-col">
-        <div class="print-col-header">${g.title}</div>
-        <ul class="list">${g.players.map((p, index) => rowHtml(p, index)).join('')}</ul>
-      </div>`).join('');
-    $('#printDate').textContent = new Date().toLocaleString();
-  }
-
-  // ------------------------- Modal / Import Flow -------------------------
-  const schemaEl = $('#jsonSchema');
-  function trapFocus(element){
-    const focusable = element.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
-    const first = focusable[0], last = focusable[focusable.length-1];
-    const onKey = (e)=>{
-      if(e.key==='Tab'){
-        if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
-        else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
-      }
-      if(e.key==='Escape'){ closeModal(); }
     };
-    element.addEventListener('keydown', onKey);
-    first?.focus();
-    return ()=> element.removeEventListener('keydown', onKey);
-  }
-  const backdrop = $('#modalBackdrop');
-  let focusTrap = null;
-  function openModal(){
-    backdrop.style.display='flex';
-    showStep(1); clearPreview();
-    document.body.style.overflow='hidden';
-    focusTrap = trapFocus($('.modal'));
-  }
-  function closeModal(){
-    backdrop.style.display='none';
-    document.body.style.overflow='';
-    if(focusTrap){ focusTrap(); focusTrap=null; }
-  }
-  function showStep(n){
-    $('#step1').style.display = (n===1?'block':'none');
-    $('#step2').style.display = (n===2?'block':'none');
-    $('#btnBack').style.display = (n===2?'inline-block':'none');
-    $('#btnContinue').style.display = (n===2?'inline-block':'none');
-  }
-  function clearPreview(){
-    $('#previewTable tbody').innerHTML='';
-    $('#validateMsg').textContent='';
-  }
-
-  $('#btnLoadUrl').addEventListener('click', async ()=>{
-    const url = $('#importUrl').value.trim();
-    if(!url){ alert('Please enter a URL.'); return; }
-    try{
-      const res = await fetch(url);
-      if(!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      handleImportedJson(json,'url');
-    }catch(err){ alert('Failed to load URL: '+err.message); }
   });
-  $('#importFile').addEventListener('change', async (ev)=>{
-    const file = ev.target.files[0];
-    if(!file) return;
-    try{
-      const text = await file.text();
-      const json = JSON.parse(text);
-      handleImportedJson(json,'file');
-    }catch(err){ alert('File read/parse error: '+err.message); }
-  });
+}
 
-  function handleImportedJson(json){
-    const errors = validateAgainstSchema(json);
-    const tbody = $('#previewTable tbody');
-    clearPreview();
-    if(errors.length){
-      $('#validateMsg').innerHTML = '<span class="error">Schema validation failed:</span><br>'+errors.map(e=>`• ${escapeHtml(e)}`).join('<br>');
-      return;
-    }
-    json.slice(0,20).forEach(p=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${p.rk}</td><td>${escapeHtml(p.name)}</td><td>${p.team}</td><td>${p.pos}</td><td>${p.ppg ?? '—'}</td><td>${p.risk}</td><td>${escapeHtml(p.pickMarker||'')}</td><td>${p.target}</td><td>${p.avoid || false}</td>`;
-      tbody.appendChild(tr);
-    });
-    showStep(2);
-    $('#btnContinue').onclick = ()=>{
-      const processed = json.map(p => ({ ...p, avoid: p.avoid || false, notes: p.notes || '' }));
-      sessionStorage.removeItem(STORAGE_KEY);
-      saveSeeds(processed);
-      renderLiveList(processed);
-      closeModal();
-    };
-  }
+function openRostersModal() {
+  renderRostersModal();
+  const modal = $('#rostersModalBackdrop');
+  modal.style.display = 'flex';
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+function closeRostersModal() {
+  const modal = $('#rostersModalBackdrop');
+  modal.style.display = 'none';
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
 
-  $('#btnUpload').addEventListener('click', openModal);
-  $('#modalClose').addEventListener('click', closeModal);
-  $('#btnBack').addEventListener('click', ()=> showStep(1));
-  $('#btnReset').addEventListener('click', ()=>{
-    if(confirm('Reset board and clear session storage?')){
-      resetSeeds();
-      sessionStorage.removeItem(STORAGE_KEY);
-      alert('Board reset.');
-    }
-  });
-  $('#btnPrint').addEventListener('click', ()=>{
-    const seeds = loadSeeds(); buildPrint(seeds); window.print();
-  });
-  window.addEventListener('beforeprint', ()=>{
-    const seeds = loadSeeds(); buildPrint(seeds);
-  });
-
-  function escapeHtml(s){
-    return String(s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
-  }
-
-  // ------------------------- Auto-load initial data -------------------------
-  async function autoLoadInitialData() {
-    const githubUrl = 'https://raw.githubusercontent.com/turnerturn/fantasy-football-draft-buddy/refs/heads/main/seeds.json';
-    $('#importUrl').value = githubUrl;
-
-    const existing = loadSeeds();
-    if (existing && existing.length) { renderLiveList(existing); return; }
-
-    try {
-      const res = await fetch(githubUrl);
-      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-      const text = await res.text();
-      const json = JSON.parse(text);
-
-      let errors = validateAgainstSchema(json);
-      if (errors.length > 0){
-        try{
-          const localRes = await fetch('./seeds.json');
-          if(localRes.ok){
-            const localJson = await localRes.json();
-            const localErrors = validateAgainstSchema(localJson);
-            if(localErrors.length===0){
-              const processed = localJson.map(p=>({ ...p, avoid:p.avoid||false, notes:p.notes||'' }));
-              saveSeeds(processed); renderLiveList(processed); return;
-            }
-          }
-          renderLiveList([]); return;
-        }catch{ renderLiveList([]); return; }
-      }
-
-      const processed = json.map(p=>({ ...p, avoid:p.avoid||false, notes:p.notes||'' }));
-      saveSeeds(processed); renderLiveList(processed);
-    } catch {
-      try{
-        const localRes = await fetch('./seeds.json');
-        if(localRes.ok){
-          const localJson = await localRes.json();
-          const localErrors = validateAgainstSchema(localJson);
-          if(localErrors.length===0){
-            const processed = localJson.map(p=>({ ...p, avoid:p.avoid||false, notes:p.notes||'' }));
-            saveSeeds(processed); renderLiveList(processed); return;
-          }
-        }
-      }catch{}
-      renderLiveList([]);
-    }
-  }
-
-  // ------------------------- Init -------------------------
-  autoLoadInitialData();
-  initPointerDnd();
-
-})();
+$('#btnRosters').addEventListener('click', openRostersModal);
+$('#rostersModalClose').addEventListener('click', closeRostersModal);
+$('#rostersModalCancel').addEventListener('click', closeRostersModal);
+$('#rostersModalBackdrop').addEventListener('click', (e) => { if (e.target === $('#rostersModalBackdrop')) closeRostersModal(); });
 </script>
 </body>
 </html>
