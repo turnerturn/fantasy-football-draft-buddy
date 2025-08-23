@@ -133,13 +133,13 @@
   <!-- NAV -->
   <div class="nav" id="nav">
     <div class="wrap">
-      <div class="brand">Turner - 2025 Big Board</div>
+      <div class="brand">2025 Fantasy Football Draft</div>
       <div class="spacer"></div>
       <input type="text" id="searchInput" class="btn" style="flex:2;min-width:120px;max-width:300px;" placeholder="Search players..." autocomplete="off" />
-      <button class="btn" id="btnUpload">Import Data</button>
-      <button class="btn" id="btnReset">Reset</button>
+      <button class="btn" id="btnUpload" hidden>Import Data</button>
       <button class="btn" id="btnRosters">Rosters</button>
-      <button class="btn primary" id="btnPrint">Print</button>
+      <button class="btn primary" id="btnPrint" hidden>Print</button>
+      <button class="btn" id="btnReset">Reset</button>
     </div>
   </div>
 
@@ -155,7 +155,7 @@
 
   <!-- PRINT LIST -->
   <div class="container" id="printSection">
-    <div class="print-header" id="printHeader">Turner - 2025 Fantasy Football Big Board</div>
+    <div class="print-header" id="printHeader">2025 Fantasy Football Draft</div>
     <div class="print-grid" id="printGrid"></div>
   </div>
   <footer class="print">Generated on <span id="printDate"></span></footer>
