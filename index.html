@@ -135,6 +135,7 @@
     <div class="wrap">
       <div class="brand">Turner - 2025 Big Board</div>
       <div class="spacer"></div>
+      <input type="text" id="searchInput" class="btn" style="flex:2;min-width:120px;max-width:300px;" placeholder="Search players..." autocomplete="off" />
       <button class="btn" id="btnUpload">Import Data</button>
       <button class="btn" id="btnReset">Reset</button>
       <button class="btn" id="btnRosters">Rosters</button>
@@ -305,9 +306,36 @@ const $ = (sel, root=document) => root.querySelector(sel);
 
 /* ---------- Storage ---------- */
 const STORAGE_KEY = 'turnerBigBoardSeeds';
-function loadSeeds(){ try{ const raw = sessionStorage.getItem(STORAGE_KEY); if(!raw) return []; const seeds = JSON.parse(raw); return seeds.map(p=>({...p, avoid:p.avoid||false})); }catch{ return []; } }
-function saveSeeds(seeds){ sessionStorage.setItem(STORAGE_KEY, JSON.stringify(seeds||[])); }
-function resetSeeds(){ sessionStorage.removeItem(STORAGE_KEY); renderLiveList([]); }
+/**
+ * Loads seeds from localStorage. Returns an array of player objects, or an empty array if not found or invalid.
+ */
+function loadSeeds(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const seeds = JSON.parse(raw);
+    return Array.isArray(seeds) ? seeds.map(p => ({ ...p, avoid: p.avoid || false })) : [];
+  } catch {
+    return [];
+  }
+}
+/**
+ * Saves seeds to localStorage. Wraps in try/catch and validates JSON before saving.
+ */
+function saveSeeds(seeds){
+  try {
+    if (!Array.isArray(seeds)) throw new Error('Seeds must be an array');
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(seeds || []));
+  } catch {}
+}
+/**
+ * Resets seeds in localStorage and clears the live list.
+ */
+function resetSeeds(){
+  localStorage.removeItem(STORAGE_KEY);
+  renderLiveList([]);
+  autoLoadInitialData();
+}
 
 /* ---------- League Teams (from screenshot) ---------- */
 const LEAGUE_TEAMS = [
@@ -415,19 +443,156 @@ function rowHtml(p, index, all=[]){
     </div>
   </li>`;
 }
-function renderLiveList(seeds){
-  const list = $('#liveList'); if(!list) return;
-  const sorted = (seeds||[]).slice().sort((a,b)=>a.rk-b.rk);
-  list.innerHTML = sorted.map((p,i)=>rowHtml(p,i,sorted)).join('');
+/**
+ * Renders the live player list, optionally filtered by fuzzy search.
+ * @param {Array} seeds - The full player list.
+ * @param {string} [searchTerm] - Optional search term for fuzzy filtering.
+ */
+function renderLiveList(seeds, searchTerm = '') {
+  const list = $('#liveList');
+  if (!list) return;
+  let sorted = (seeds || []).slice().sort((a, b) => a.rk - b.rk);
+  let filtered = sorted;
+  if (searchTerm && searchTerm.trim()) {
+    filtered = fuzzyFilterPlayers(sorted, searchTerm.trim());
+  }
+  list.innerHTML = filtered.map((p, i) => rowHtml(p, i, filtered)).join('');
   // double-click a row to open modal
   list.onmousedown = null; // ensure clean state for DnD handler binding
-  list.addEventListener('dblclick', (e)=>{
-    const row = e.target.closest('.row'); if(!row) return;
-    const index = parseInt(row.dataset.index,10); if(Number.isInteger(index)) openPlayerNotes(index);
+  list.addEventListener('dblclick', (e) => {
+    const row = e.target.closest('.row');
+    if (!row) return;
+    const index = parseInt(row.dataset.index, 10);
+    if (Number.isInteger(index)) {
+      // Use filtered list and pass playerId
+      const playerId = parseInt(row.dataset.playerId, 10);
+      openPlayerNotesById(playerId, filtered);
+    }
   });
+
+  // --- Swipe right gesture for Assign Team modal ---
+  let touchStartX = 0, touchStartY = 0, touchMoved = false;
+  list.addEventListener('touchstart', (e) => {
+    const row = e.target.closest('.row');
+    if (!row) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchMoved = false;
+    row._swipeActive = true;
+  }, {passive:true});
+  list.addEventListener('touchmove', (e) => {
+    const row = e.target.closest('.row');
+    if (!row || !row._swipeActive) return;
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = Math.abs(e.touches[0].clientY - touchStartY);
+    // Only consider horizontal swipe, ignore vertical scroll
+    if (dx > 40 && dy < 30 && !touchMoved) {
+      touchMoved = true;
+      row._swipeActive = false;
+      const playerId = parseInt(row.dataset.playerId, 10);
+      openTeamModalById(playerId);
+    }
+  }, {passive:true});
+  list.addEventListener('touchend', (e) => {
+    const row = e.target.closest('.row');
+    if (row) row._swipeActive = false;
+    touchMoved = false;
+  }, {passive:true});
   // (re)bind pointer DnD
   dnd.list?.removeEventListener?.('pointerdown', onPointerDown);
   initPointerDnd();
+}
+
+/**
+ * Fuzzy filters players by name, team, or position.
+ * @param {Array} players
+ * @param {string} term
+ * @returns {Array}
+ */
+function fuzzyFilterPlayers(players, term) {
+  const t = term.toLowerCase();
+  return players.filter(p =>
+    (p.name && p.name.toLowerCase().includes(t)) ||
+    (p.team && p.team.toLowerCase().includes(t)) ||
+    (p.pos && p.pos.toLowerCase().includes(t))
+  );
+}
+
+/**
+ * Opens player details modal by playerId, using the filtered list.
+ * @param {number} playerId
+ * @param {Array} filteredList
+ */
+function openPlayerNotesById(playerId, filteredList) {
+  // Find the player in the filtered list
+  const index = filteredList.findIndex(p => p.rk === playerId);
+  if (index === -1) return;
+  // Use filteredList for modal context
+  openPlayerNotesFiltered(index, filteredList);
+}
+
+/**
+ * Opens player details modal for filtered list context.
+ * @param {number} index
+ * @param {Array} filteredList
+ */
+function openPlayerNotesFiltered(index, filteredList) {
+  if (!filteredList[index]) return;
+  currentPlayerIndex = index;
+  const p = filteredList[index];
+  $('#playerDetailsName').textContent = p.name;
+  $('#playerRank').textContent = p.rk;
+  $('#playerTeam').textContent = p.team;
+  $('#playerPos').textContent = p.pos;
+  $('#playerPPG').textContent = p.ppg == null ? '—' : Number(p.ppg).toFixed(2);
+  populateDepthChartInfo(p);
+  populateInjuriesInfo(p);
+  $('#playerJsonDetails').textContent = JSON.stringify(p, null, 2);
+  if (p.outlook && p.outlook.trim()) {
+    $('#playerOutlook').style.display = 'block';
+    $('#playerOutlookText').textContent = p.outlook;
+  } else {
+    $('#playerOutlook').style.display = 'none';
+  }
+  $('#playerNotesInput').value = p.notes || '';
+  updateCharCount();
+  const targetBtn = $('#toggleTargetBtn'), warnBtn = $('#toggleWarnBtn');
+  const targetIcon = $('#toggleTargetIcon'), warnIcon = $('#toggleWarnIcon');
+  const setTargetUI = on => { targetBtn.classList.toggle('is-on', !!on); targetIcon.className = on ? 'bi bi-star-fill' : 'bi bi-star'; };
+  const setWarnUI = on => { warnBtn.classList.toggle('is-on', !!on); warnIcon.className = on ? 'bi bi-exclamation-triangle-fill' : 'bi bi-exclamation-triangle'; };
+  setTargetUI(!!p.target); setWarnUI(!!p.risk);
+  targetBtn.onclick = () => { toggleTargetAtFiltered(index, filteredList); setTargetUI(filteredList[index].target); };
+  warnBtn.onclick = () => { toggleRiskAtFiltered(index, filteredList); setWarnUI(filteredList[index].risk); };
+  const modal = $('#notesModalBackdrop'); modal.style.display = 'flex'; modal.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
+  $('#notesModalBody').scrollTop = 0;
+  $('#notesModalBody').ondblclick = () => openTeamModalById(p.rk);
+}
+
+function toggleTargetAtFiltered(index, filteredList) {
+  filteredList[index].target = !filteredList[index].target;
+  // Update main seeds
+  const seeds = loadSeeds();
+  const mainIndex = seeds.findIndex(p => p.rk === filteredList[index].rk);
+  if (mainIndex !== -1) {
+    seeds[mainIndex].target = filteredList[index].target;
+    saveSeeds(seeds);
+    renderLiveList(seeds, $('#searchInput').value);
+  }
+}
+function toggleRiskAtFiltered(index, filteredList) {
+  filteredList[index].risk = !filteredList[index].risk;
+  const seeds = loadSeeds();
+  const mainIndex = seeds.findIndex(p => p.rk === filteredList[index].rk);
+  if (mainIndex !== -1) {
+    seeds[mainIndex].risk = filteredList[index].risk;
+    saveSeeds(seeds);
+    renderLiveList(seeds, $('#searchInput').value);
+  }
+}
+function openTeamModalById(playerId) {
+  const seeds = loadSeeds();
+  const index = seeds.findIndex(p => p.rk === playerId);
+  if (index !== -1) openTeamModal(index);
 }
 
 /* ---------- Toggle helpers ---------- */
@@ -436,40 +601,7 @@ function toggleRiskAt(index){ const s=loadSeeds(); if(!s[index]) return; s[index
 
 /* ---------- Player Modal ---------- */
 let currentPlayerIndex = -1;
-function openPlayerNotes(index){
-  const seeds = loadSeeds(); if(!seeds[index]) return;
-  currentPlayerIndex = index; const p = seeds[index];
-
-  $('#playerDetailsName').textContent = p.name;
-  $('#playerRank').textContent = p.rk;
-  $('#playerTeam').textContent = p.team;
-  $('#playerPos').textContent = p.pos;
-  $('#playerPPG').textContent = p.ppg==null ? '—' : Number(p.ppg).toFixed(2);
-
-  // depth/injuries
-  populateDepthChartInfo(p); populateInjuriesInfo(p);
-  $('#playerJsonDetails').textContent = JSON.stringify(p, null, 2);
-  if(p.outlook && p.outlook.trim()){ $('#playerOutlook').style.display='block'; $('#playerOutlookText').textContent=p.outlook; } else { $('#playerOutlook').style.display='none'; }
-
-  // notes
-  $('#playerNotesInput').value = p.notes || ''; updateCharCount();
-
-  // toggles UI
-  const targetBtn  = $('#toggleTargetBtn'), warnBtn = $('#toggleWarnBtn');
-  const targetIcon = $('#toggleTargetIcon'), warnIcon = $('#toggleWarnIcon');
-  const setTargetUI = on => { targetBtn.classList.toggle('is-on', !!on); targetIcon.className = on ? 'bi bi-star-fill' : 'bi bi-star'; };
-  const setWarnUI   = on => { warnBtn.classList.toggle('is-on', !!on);   warnIcon.className   = on ? 'bi bi-exclamation-triangle-fill' : 'bi bi-exclamation-triangle'; };
-  setTargetUI(!!p.target); setWarnUI(!!p.risk);
-  targetBtn.onclick = ()=>{ toggleTargetAt(currentPlayerIndex); setTargetUI(loadSeeds()[currentPlayerIndex].target); };
-  warnBtn.onclick   = ()=>{ toggleRiskAt(currentPlayerIndex);   setWarnUI(loadSeeds()[currentPlayerIndex].risk);   };
-
-  // open modal + start at top
-  const modal = $('#notesModalBackdrop'); modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
-  $('#notesModalBody').scrollTop = 0;
-
-  // double-click body -> assign team modal
-  $('#notesModalBody').ondblclick = () => openTeamModal(currentPlayerIndex);
-}
+// ...existing code...
 function populateDepthChartInfo(player){
   const section = $('#depthChartSection'); if(player.depthChartInfo){ const d=player.depthChartInfo;
     section.style.display='block';
@@ -544,23 +676,60 @@ function clearPreview(){ $('#previewTable tbody').innerHTML=''; $('#validateMsg'
 $('#btnUpload').addEventListener('click', openModal);
 $('#modalClose').addEventListener('click', closeModal);
 $('#btnBack').addEventListener('click', ()=>showStep(1));
-$('#btnLoadUrl').addEventListener('click', async ()=>{
-  const url = $('#importUrl').value.trim(); if(!url){ alert('Please enter a URL.'); return; }
-  try{ const res = await fetch(url); if(!res.ok) throw new Error(`HTTP ${res.status}`); const json = await res.json(); handleImportedJson(json); }
-  catch(err){ alert('Failed to load URL: '+err.message); }
+
+$('#btnLoadUrl').addEventListener('click', async () => {
+  const url = $('#importUrl').value.trim();
+  if (!url) {
+    alert('Please enter a URL.');
+    return;
+  }
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    handleImportedJson(json);
+  } catch (err) {
+    alert('Failed to load URL: ' + err.message);
+  }
 });
-$('#importFile').addEventListener('change', async (ev)=>{
-  const file=ev.target.files[0]; if(!file) return;
-  try{ const text = await file.text(); const json = JSON.parse(text); handleImportedJson(json); }
-  catch(err){ alert('File read/parse error: '+err.message); }
+
+$('#importFile').addEventListener('change', async (ev) => {
+  const file = ev.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const json = JSON.parse(text);
+    handleImportedJson(json);
+  } catch (err) {
+    alert('File read/parse error: ' + err.message);
+  }
 });
-function handleImportedJson(json){
-  const errors = validateAgainstSchema(json); const tbody=$('#previewTable tbody'); clearPreview();
-  if(errors.length){ $('#validateMsg').innerHTML = '<span style="color:var(--danger)">Schema validation failed:</span><br>'+errors.map(e=>`• ${escapeHtml(e)}`).join('<br>'); return; }
-  json.slice(0,20).forEach(p=>{ const tr=document.createElement('tr'); tr.innerHTML = `<td>${p.rk}</td><td>${escapeHtml(p.name)}</td><td>${p.team}</td><td>${p.pos}</td><td>${p.ppg ?? '—'}</td><td>${p.risk}</td><td>${escapeHtml(p.pickMarker||'')}</td><td>${p.target}</td><td>${p.avoid || false}</td>`; tbody.appendChild(tr); });
+
+/**
+ * Handles imported JSON from URL or file, validates, previews, and sets up for saving to localStorage.
+ */
+function handleImportedJson(json) {
+  const errors = validateAgainstSchema(json);
+  const tbody = $('#previewTable tbody');
+  clearPreview();
+  if (errors.length) {
+    $('#validateMsg').innerHTML = '<span style="color:var(--danger)">Schema validation failed:</span><br>' + errors.map(e => `• ${escapeHtml(e)}`).join('<br>');
+    return;
+  }
+  json.slice(0, 20).forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${p.rk}</td><td>${escapeHtml(p.name)}</td><td>${p.team}</td><td>${p.pos}</td><td>${p.ppg ?? '—'}</td><td>${p.risk}</td><td>${escapeHtml(p.pickMarker || '')}</td><td>${p.target}</td><td>${p.avoid || false}</td>`;
+    tbody.appendChild(tr);
+  });
   showStep(2);
-  $('#btnContinue').onclick = ()=>{ const processed=json.map(p=>({...p, avoid:p.avoid||false, notes:p.notes||'' })); sessionStorage.removeItem(STORAGE_KEY); saveSeeds(processed); renderLiveList(processed); closeModal(); };
-};
+  $('#btnContinue').onclick = () => {
+    const processed = json.map(p => ({ ...p, avoid: p.avoid || false, notes: p.notes || '' }));
+    localStorage.removeItem(STORAGE_KEY);
+    saveSeeds(processed);
+    renderLiveList(processed);
+    closeModal();
+  };
+}
 
 $('#btnReset').addEventListener('click', ()=>{ if(confirm('Reset board and clear session storage?')){ resetSeeds(); sessionStorage.removeItem(STORAGE_KEY); alert('Board reset.'); }});
 $('#btnPrint').addEventListener('click', ()=>{ const seeds=loadSeeds(); buildPrint(seeds); window.print(); });
@@ -590,6 +759,12 @@ async function autoLoadInitialData(){
 /* ---------- Init ---------- */
 autoLoadInitialData();
 initPointerDnd();
+// Fuzzy search input event
+$('#searchInput').addEventListener('input', (e) => {
+  const term = e.target.value;
+  const seeds = loadSeeds();
+  renderLiveList(seeds, term);
+});
 
 // --- Rosters Modal Logic ---
 const ROSTER_SLOTS = [
