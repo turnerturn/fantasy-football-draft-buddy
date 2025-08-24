@@ -274,7 +274,10 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rostersModalTitle">
       <div class="modal-header">
         <div class="modal-title" id="rostersModalTitle">League Rosters</div>
-        <button class="modal-close" id="rostersModalClose" aria-label="Close">×</button>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+          <button class="btn primary" id="btnAddPlayer">Add Player</button>
+          <button class="modal-close" id="rostersModalClose" aria-label="Close">×</button>
+        </div>
       </div>
       <div class="modal-body" id="rostersModalBody" style="max-height:70vh;overflow-y:auto;"></div>
       <div class="modal-footer">
@@ -295,6 +298,47 @@
       </div>
       <div class="modal-footer">
         <button class="btn ghost" id="teamModalCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Player (multi-step) -->
+  <div class="modal-backdrop" id="addPlayerModalBackdrop" aria-hidden="true" style="display:none">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addPlayerModalTitle">
+      <div class="modal-header">
+        <div class="modal-title" id="addPlayerModalTitle">Add Player to Roster</div>
+        <button class="modal-close" id="addPlayerModalClose" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body" id="addPlayerModalBody">
+        <div id="ap-step1">
+          <label class="legend">Select Fantasy Team</label>
+          <select id="ap-teamSelect" style="width:100%;min-height:44px;background:#0f1524;color:var(--fg);border:1px solid var(--border);border-radius:10px;padding:10px;font-size:15px;"></select>
+        </div>
+        <div id="ap-step2" style="display:none">
+          <label class="legend">Player Name</label>
+          <input type="text" id="ap-playerInput" placeholder="Type player name..." style="width:100%;min-height:44px;background:#0f1524;color:var(--fg);border:1px solid var(--border);border-radius:10px;padding:10px" autocomplete="off" />
+          <div id="ap-suggestions" style="margin-top:8px;background:transparent;"></div>
+          <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+            <div style="flex:1">
+              <label class="legend" for="ap-posSelect">Position (required for manual adds)</label>
+              <select id="ap-posSelect" style="width:100%;min-height:44px;background:#0f1524;color:var(--fg);border:1px solid var(--border);border-radius:10px;padding:10px;font-size:15px;display:none;">
+                <option value="">Select position...</option>
+                <option value="QB">QB</option>
+                <option value="RB">RB</option>
+                <option value="WR">WR</option>
+                <option value="TE">TE</option>
+                <option value="K">K</option>
+                <option value="DST">D/ST</option>
+              </select>
+            </div>
+          </div>
+          <div class="help" style="margin-top:8px">If your player is not listed, choose the "Other" suggestion to add manually and pick a position.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn ghost" id="ap-back" style="display:none">Back</button>
+        <button class="btn" id="ap-next">Next</button>
+        <button class="btn primary" id="ap-save" style="display:none">Save</button>
       </div>
     </div>
   </div>
@@ -768,9 +812,9 @@ $('#searchInput').addEventListener('input', (e) => {
 
 // --- Rosters Modal Logic ---
 const ROSTER_SLOTS = [
-  'QB','RB','WR','WR','TE','FLEX','FLEX','FLEX','D/ST','K',
+  'QB','RB','WR','WR','TE','FLEX','FLEX','D/ST','K',
 ];
-const BENCH_SLOTS = Array(6).fill('Bench');
+const BENCH_SLOTS = Array(7).fill('Bench');
 
 function getTeamPlayers(teamId, seeds) {
   return seeds.filter(p => p.assignedTeam === teamId);
@@ -779,33 +823,77 @@ function getTeamPlayers(teamId, seeds) {
 function getRosterByTeam(teamId, seeds) {
   // Returns {starters:[], bench:[]} for a team
   const players = getTeamPlayers(teamId, seeds).slice();
-  // Sort by assigned slot order, fallback to rank
-  const starters = [];
+  // Normalize rk values to numbers to avoid Set mismatches (strings vs numbers)
+  players.forEach(p => { if (p && p.rk != null && typeof p.rk !== 'number') { p.rk = Number(p.rk); } });
+
+  // Use temporary _placed flag to guarantee each player is only assigned once
+  players.forEach(p => { if (p) p._placed = false; });
+
+  const starters = Array(ROSTER_SLOTS.length).fill(null);
   const bench = [];
-  // Assign slots by position, then fill flex, then bench
-  const used = new Set();
-  for (const slot of ROSTER_SLOTS) {
-    let found = null;
-    if (slot === 'FLEX') {
-      found = players.find(p => !used.has(p.rk) && ['RB','WR','TE'].includes(p.pos));
-    } else {
-      found = players.find(p => !used.has(p.rk) && p.pos === slot);
+
+  // 1) Honor any explicit slot assignments (assignedSlotIndex)
+  players.forEach(p => {
+    if (p && Number.isInteger(p.assignedSlotIndex)) {
+      const idx = p.assignedSlotIndex;
+      if (idx >= 0 && idx < ROSTER_SLOTS.length && !starters[idx] && !Number.isNaN(p.rk) && !p._placed) {
+        // defensive: ensure not already used
+        if (!starters.some(s => s && s.rk === p.rk)) {
+          starters[idx] = p;
+          p._placed = true;
+        }
+      }
     }
-    if (found) { starters.push(found); used.add(found.rk); }
-    else { starters.push(null); }
+  });
+
+  // 2) Fill remaining starter slots deterministically without reusing players
+  for (let i = 0; i < ROSTER_SLOTS.length; i++) {
+    if (starters[i]) continue; // already filled
+    const slot = ROSTER_SLOTS[i];
+    let chosen = null;
+    for (let j = 0; j < players.length; j++) {
+      const p = players[j];
+      if (!p || p._placed || Number.isNaN(p.rk)) continue;
+      if (slot === 'FLEX') {
+        if (['RB', 'WR', 'TE'].includes(p.pos)) { chosen = p; break; }
+      } else {
+        if (p.pos === slot) { chosen = p; break; }
+      }
+    }
+    if (chosen) { starters[i] = chosen; chosen._placed = true; }
   }
-  // Remaining go to bench
-  players.forEach(p => { if (!used.has(p.rk)) bench.push(p); });
-  // Fill empty bench slots
+
+  // 3) Remaining players go to bench (those not placed)
+  players.forEach(p => { if (p && !p._placed && !Number.isNaN(p.rk)) bench.push(p); });
+
+  // Clean up temporary flags so we don't persist them
+  players.forEach(p => { if (p) delete p._placed; });
+
+  // Fill bench slots with nulls if needed
   while (bench.length < BENCH_SLOTS.length) bench.push(null);
-  return {starters, bench};
+  return { starters, bench };
 }
 
 function renderRostersModal() {
   const seeds = loadSeeds();
   const body = $('#rostersModalBody');
   body.innerHTML = LEAGUE_TEAMS.map(team => {
-    const {starters, bench} = getRosterByTeam(team.id, seeds);
+    const roster = getRosterByTeam(team.id, seeds);
+    // Work on local copy of starters to avoid mutating roster data
+    const starters = roster.starters.slice();
+    const bench = roster.bench.slice();
+    // Dedupe: ensure each player appears only once in starters (keep first occurrence)
+    const seen = new Set();
+    for (let i = 0; i < starters.length; i++) {
+      const p = starters[i];
+      if (p && p.rk != null) {
+        if (seen.has(p.rk)) {
+          starters[i] = null; // clear duplicate
+        } else {
+          seen.add(p.rk);
+        }
+      }
+    }
     return `
       <div class="roster-summary" style="margin-bottom:32px;">
         <div style="font-weight:bold;font-size:16px;margin-bottom:6px;">${team.id} — ${escapeHtml(team.team)} <span style="color:var(--muted);font-size:13px;">(${escapeHtml(team.manager)})</span></div>
@@ -846,6 +934,8 @@ function renderRostersModal() {
       const player = seeds.find(p => p.rk === rk && p.assignedTeam === teamId);
       if (player) {
         player.assignedTeam = null;
+        // Remove assignedSlotIndex if present so it won't reappear
+        if ('assignedSlotIndex' in player) delete player.assignedSlotIndex;
         saveSeeds(seeds);
         renderLiveList(seeds);
         renderRostersModal();
@@ -868,10 +958,181 @@ function closeRostersModal() {
   document.body.style.overflow = '';
 }
 
-$('#btnRosters').addEventListener('click', openRostersModal);
-$('#rostersModalClose').addEventListener('click', closeRostersModal);
-$('#rostersModalCancel').addEventListener('click', closeRostersModal);
-$('#rostersModalBackdrop').addEventListener('click', (e) => { if (e.target === $('#rostersModalBackdrop')) closeRostersModal(); });
+/* ---------- Rosters Modal Logic ---------- */
+function openAddPlayerModal(){
+  const modal = $('#addPlayerModalBackdrop');
+  const teamSel = $('#ap-teamSelect');
+  teamSel.innerHTML = `<option value="" selected>Choose a team...</option>` +
+    LEAGUE_TEAMS.map(t => `<option value="${t.id}">${t.id} — ${escapeHtml(t.team)} (${escapeHtml(t.manager)})</option>`).join('');
+  // reset UI
+  $('#ap-playerInput').value = '';
+  $('#ap-suggestions').innerHTML = '';
+  showAddPlayerStep(1);
+  modal.style.display = 'flex'; modal.setAttribute('aria-hidden','false'); document.body.style.overflow = 'hidden';
+  teamSel.focus();
+}
+function closeAddPlayerModal(){ const m = $('#addPlayerModalBackdrop'); m.style.display='none'; m.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+function showAddPlayerStep(n){ $('#ap-step1').style.display = (n===1? 'block':'none'); $('#ap-step2').style.display = (n===2? 'block':'none'); $('#ap-back').style.display = (n===2? 'inline-block':'none'); $('#ap-next').style.display = (n===1? 'inline-block':'none'); $('#ap-save').style.display = (n===2? 'inline-block':'none'); }
+
+let ap_selectedSuggestion = null; // {type:'existing', player} or {type:'other}
+
+function renderApSuggestions(term){
+  const container = $('#ap-suggestions');
+  container.innerHTML = '';
+  ap_selectedSuggestion = null; // reset selection when re-rendering
+  // hide pos select by default unless 'other' chosen
+  const posSel = $('#ap-posSelect'); if(posSel) posSel.style.display = 'none';
+  if(!term || term.trim().length===0){ return; }
+  const seeds = loadSeeds();
+  const matches = fuzzyFilterPlayers(seeds, term).slice(0,8);
+  const ul = document.createElement('div'); ul.style.display='grid'; ul.style.gridTemplateColumns='1fr'; ul.style.gap='6px';
+  matches.forEach(p=>{
+    const btn = document.createElement('button'); btn.className='btn'; btn.style.textAlign='left'; btn.style.width='100%'; btn.innerHTML = `${escapeHtml(p.name)} <span class="legend" style="float:right;">${p.pos} • ${p.team}</span>`;
+    btn.onclick = ()=>{ ap_selectedSuggestion = {type:'existing', player:p}; // reflect selection
+      // highlight selection
+      Array.from(container.querySelectorAll('button')).forEach(b=>b.style.outline=''); btn.style.outline='2px solid var(--accent)';
+      // hide pos select because existing player has a pos
+      if(posSel) posSel.style.display = 'none';
+    };
+    ul.appendChild(btn);
+  });
+  // 'Other' option
+  const otherBtn = document.createElement('button'); otherBtn.className='btn ghost'; otherBtn.style.width='100%'; otherBtn.textContent = `Other: add "${term}" manually`;
+  otherBtn.onclick = ()=>{ ap_selectedSuggestion = {type:'other'}; Array.from(container.querySelectorAll('button')).forEach(b=>b.style.outline=''); otherBtn.style.outline='2px solid var(--accent)'; if(posSel) posSel.style.display='block'; };
+  ul.appendChild(otherBtn);
+  container.appendChild(ul);
+}
+
+// Update save handler to require position when adding manual player
+$('#ap-save').addEventListener('click', ()=>{
+  const teamId = $('#ap-teamSelect').value;
+  if(!teamId){ alert('Team required.'); return; }
+  const input = $('#ap-playerInput').value.trim();
+  const seeds = loadSeeds();
+  if(ap_selectedSuggestion && ap_selectedSuggestion.type==='existing'){
+    const p = seeds.find(s => s.rk === ap_selectedSuggestion.player.rk);
+    if(p){ p.assignedTeam = teamId; saveSeeds(seeds); renderLiveList(seeds); renderRostersModal(); closeAddPlayerModal(); return; }
+  }
+  // manual add (either user selected Other or no suggestion chosen)
+  if(!input){ alert('Please enter a player name.'); return; }
+  const pos = ($('#ap-posSelect').value || '').trim();
+  if(!pos){ alert('Please select a position for the manual player.'); return; }
+  // determine if there's an available starter slot for this position
+  const currentRoster = getRosterByTeam(teamId, seeds);
+  let assignIndex = null;
+  for (let i = 0; i < ROSTER_SLOTS.length; i++) {
+    const slot = ROSTER_SLOTS[i];
+    const slotMatches = (slot === 'FLEX') ? ['RB','WR','TE'].includes(pos) : (slot === pos);
+    if (slotMatches && !currentRoster.starters[i]) { assignIndex = i; break; }
+  }
+  // create minimal player object
+  const maxRk = seeds.reduce((m,x)=>Math.max(m, x.rk||0), 0);
+  const newPlayer = {
+    rk: maxRk + 1,
+    name: input,
+    team: '',
+    pos: pos,
+    ppg: null,
+    risk: false,
+    pickMarker: '',
+    target: false,
+    avoid: false,
+    notes: '',
+    assignedTeam: teamId
+  };
+  if (assignIndex !== null) newPlayer.assignedSlotIndex = assignIndex;
+  seeds.push(newPlayer);
+  saveSeeds(seeds);
+  renderLiveList(seeds);
+  renderRostersModal();
+  closeAddPlayerModal();
+});
+
+// When user types and doesn't pick a suggestion, ensure pos select is visible (since that will be treated as manual)
+$('#ap-playerInput').addEventListener('input', (e)=>{
+  ap_selectedSuggestion = null;
+  renderApSuggestions(e.target.value.trim());
+  // Also show pos select because lack of explicit selection means manual add
+  const posSel = $('#ap-posSelect'); if(posSel) posSel.style.display = e.target.value.trim().length>0 ? 'block' : 'none';
+});
+
+// Wire up Rosters modal button and close handlers (ensure these exist)
+const rostersBtn = $('#btnRosters'); if(rostersBtn) rostersBtn.addEventListener('click', openRostersModal);
+const rostersClose = $('#rostersModalClose'); if(rostersClose) rostersClose.addEventListener('click', closeRostersModal);
+const rostersCancel = $('#rostersModalCancel'); if(rostersCancel) rostersCancel.addEventListener('click', closeRostersModal);
+const rostersBackdrop = $('#rostersModalBackdrop'); if(rostersBackdrop) rostersBackdrop.addEventListener('click', (e) => { if (e.target === rostersBackdrop) closeRostersModal(); });
+
+// Wire up add player modal events
+$('#btnAddPlayer').addEventListener('click', openAddPlayerModal);
+$('#addPlayerModalClose').addEventListener('click', closeAddPlayerModal);
+$('#addPlayerModalBackdrop').addEventListener('click', (e)=>{ if(e.target === $('#addPlayerModalBackdrop')) closeAddPlayerModal(); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && $('#addPlayerModalBackdrop').style.display==='flex') closeAddPlayerModal(); });
+
+$('#ap-next').addEventListener('click', ()=>{
+
+  const team = $('#ap-teamSelect').value;
+  if(!team){ alert('Please select a fantasy team.'); return; }
+  showAddPlayerStep(2);
+  $('#ap-playerInput').focus();
+});
+$('#ap-back').addEventListener('click', ()=> showAddPlayerStep(1));
+
+$('#ap-playerInput').addEventListener('input', (e)=>{
+  ap_selectedSuggestion = null;
+  renderApSuggestions(e.target.value.trim());
+});
+
+$('#ap-save').addEventListener('click', ()=>{
+  const teamId = $('#ap-teamSelect').value;
+  if(!teamId){ alert('Team required.'); return; }
+  const input = $('#ap-playerInput').value.trim();
+  const seeds = loadSeeds();
+  if(ap_selectedSuggestion && ap_selectedSuggestion.type==='existing'){
+    const p = seeds.find(s => s.rk === ap_selectedSuggestion.player.rk);
+    if(p){ p.assignedTeam = teamId; saveSeeds(seeds); renderLiveList(seeds); renderRostersModal(); closeAddPlayerModal(); return; }
+  }
+  // manual add (either user selected Other or no suggestion chosen)
+  if(!input){ alert('Please enter a player name.'); return; }
+  const pos = ($('#ap-posSelect').value || '').trim();
+  if(!pos){ alert('Please select a position for the manual player.'); return; }
+  // determine if there's an available starter slot for this position
+  const currentRoster = getRosterByTeam(teamId, seeds);
+  let assignIndex = null;
+  for (let i = 0; i < ROSTER_SLOTS.length; i++) {
+    const slot = ROSTER_SLOTS[i];
+    const slotMatches = (slot === 'FLEX') ? ['RB','WR','TE'].includes(pos) : (slot === pos);
+    if (slotMatches && !currentRoster.starters[i]) { assignIndex = i; break; }
+  }
+  // create minimal player object
+  const maxRk = seeds.reduce((m,x)=>Math.max(m, x.rk||0), 0);
+  const newPlayer = {
+    rk: maxRk + 1,
+    name: input,
+    team: '',
+    pos: pos,
+    ppg: null,
+    risk: false,
+    pickMarker: '',
+    target: false,
+    avoid: false,
+    notes: '',
+    assignedTeam: teamId
+  };
+  if (assignIndex !== null) newPlayer.assignedSlotIndex = assignIndex;
+  seeds.push(newPlayer);
+  saveSeeds(seeds);
+  renderLiveList(seeds);
+  renderRostersModal();
+  closeAddPlayerModal();
+});
+
+// Ensure 'Save' button becomes visible when a suggestion is chosen or input present
+setInterval(()=>{
+  if($('#addPlayerModalBackdrop').style.display!=='flex') return;
+  const input = $('#ap-playerInput').value.trim();
+  const hasSelection = ap_selectedSuggestion !== null;
+  $('#ap-save').style.display = (document.querySelector('#ap-step2').style.display==='block' && (hasSelection || input.length>0)) ? 'inline-block' : 'none';
+}, 300);
 </script>
 </body>
 </html>
